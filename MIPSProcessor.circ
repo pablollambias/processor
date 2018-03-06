@@ -22,44 +22,44 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
   <lib desc="#I/O" name="5"/>
   <lib desc="#HDL-IP" name="6">
     <tool name="VHDL Entity">
-      <a name="content">--------------------------------------------------------------------------------&#13;
--- HEIG-VD, institute REDS, 1400 Yverdon-les-Bains&#13;
--- Project :&#13;
--- File    :&#13;
--- Autor   :&#13;
--- Date    :&#13;
---&#13;
---------------------------------------------------------------------------------&#13;
--- Description :&#13;
---&#13;
---------------------------------------------------------------------------------&#13;
-&#13;
-library ieee;&#13;
-  use ieee.std_logic_1164.all;&#13;
-  --use ieee.numeric_std.all;&#13;
-&#13;
-entity VHDL_Component is&#13;
-  port(&#13;
-  ------------------------------------------------------------------------------&#13;
-  --Insert input ports below&#13;
-    horloge_i  : in  std_logic;                    -- input bit example&#13;
-    val_i      : in  std_logic_vector(3 downto 0); -- input vector example&#13;
-  ------------------------------------------------------------------------------&#13;
-  --Insert output ports below&#13;
-    max_o      : out std_logic;                    -- output bit example&#13;
-    cpt_o      : out std_logic_Vector(3 downto 0)  -- output vector example&#13;
-    );&#13;
-end VHDL_Component;&#13;
-&#13;
---------------------------------------------------------------------------------&#13;
---Complete your VHDL description below&#13;
-architecture type_architecture of VHDL_Component is&#13;
-&#13;
-&#13;
-begin&#13;
-&#13;
-&#13;
-end type_architecture;&#13;
+      <a name="content">--------------------------------------------------------------------------------
+-- HEIG-VD, institute REDS, 1400 Yverdon-les-Bains
+-- Project :
+-- File    :
+-- Autor   :
+-- Date    :
+--
+--------------------------------------------------------------------------------
+-- Description :
+--
+--------------------------------------------------------------------------------
+
+library ieee;
+  use ieee.std_logic_1164.all;
+  --use ieee.numeric_std.all;
+
+entity VHDL_Component is
+  port(
+  ------------------------------------------------------------------------------
+  --Insert input ports below
+    horloge_i  : in  std_logic;                    -- input bit example
+    val_i      : in  std_logic_vector(3 downto 0); -- input vector example
+  ------------------------------------------------------------------------------
+  --Insert output ports below
+    max_o      : out std_logic;                    -- output bit example
+    cpt_o      : out std_logic_Vector(3 downto 0)  -- output vector example
+    );
+end VHDL_Component;
+
+--------------------------------------------------------------------------------
+--Complete your VHDL description below
+architecture type_architecture of VHDL_Component is
+
+
+begin
+
+
+end type_architecture;
 </a>
     </tool>
   </lib>
@@ -91,7 +91,11 @@ end TCL_Generic;&#13;
     </tool>
   </lib>
   <lib desc="#BFH-Praktika" name="9"/>
-  <lib desc="#CS3410-Components" name="10"/>
+  <lib desc="#CS3410-Components" name="10">
+    <tool name="MIPSProgramROM">
+      <a name="contents" val=""/>
+    </tool>
+  </lib>
   <main name="main"/>
   <options>
     <a name="gateUndefined" val="ignore"/>
@@ -134,6 +138,99 @@ end TCL_Generic;&#13;
   </circuit>
   <circuit name="MIPS32">
     <a name="circuit" val="MIPS32"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif bold 16"/>
+    <a name="circuitnamedbox" val="true"/>
+    <a name="circuitvhdlpath" val=""/>
+    <comp lib="10" loc="(540,360)" name="MIPSProgramROM">
+      <a name="contents" val=""/>
+    </comp>
+    <comp lib="10" loc="(770,400)" name="RegisterFile"/>
+    <comp lib="10" loc="(480,500)" name="Incrementer"/>
+    <comp lib="10" loc="(610,630)" name="Mips ALU"/>
+  </circuit>
+  <circuit name="instructionFetch">
+    <a name="circuit" val="instructionFetch"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif bold 16"/>
+    <a name="circuitnamedbox" val="true"/>
+    <a name="circuitvhdlpath" val=""/>
+    <wire from="(200,440)" to="(230,440)"/>
+    <wire from="(460,230)" to="(870,230)"/>
+    <wire from="(590,470)" to="(870,470)"/>
+    <wire from="(110,680)" to="(590,680)"/>
+    <wire from="(110,440)" to="(140,440)"/>
+    <wire from="(80,460)" to="(140,460)"/>
+    <wire from="(320,480)" to="(350,480)"/>
+    <wire from="(380,480)" to="(430,480)"/>
+    <wire from="(150,460)" to="(150,470)"/>
+    <wire from="(230,470)" to="(280,470)"/>
+    <wire from="(60,740)" to="(80,740)"/>
+    <wire from="(300,310)" to="(450,310)"/>
+    <wire from="(300,320)" to="(450,320)"/>
+    <wire from="(470,470)" to="(590,470)"/>
+    <wire from="(110,440)" to="(110,680)"/>
+    <wire from="(140,480)" to="(140,790)"/>
+    <wire from="(130,790)" to="(140,790)"/>
+    <wire from="(140,460)" to="(150,460)"/>
+    <wire from="(230,290)" to="(230,440)"/>
+    <wire from="(80,460)" to="(80,740)"/>
+    <wire from="(590,470)" to="(590,680)"/>
+    <wire from="(230,440)" to="(230,470)"/>
+    <comp lib="0" loc="(130,790)" name="Clock"/>
+    <comp lib="10" loc="(460,230)" name="MIPSProgramROM">
+      <a name="contents" val=""/>
+    </comp>
+    <comp lib="0" loc="(870,230)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="32"/>
+      <a name="label" val="inst"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="10" loc="(380,480)" name="Incrementer">
+      <a name="width" val="30"/>
+    </comp>
+    <comp lib="0" loc="(470,470)" name="Splitter">
+      <a name="facing" val="west"/>
+      <a name="fanout" val="32"/>
+      <a name="incoming" val="32"/>
+      <a name="appear" val="center"/>
+    </comp>
+    <comp lib="0" loc="(280,470)" name="Splitter">
+      <a name="fanout" val="32"/>
+      <a name="incoming" val="32"/>
+      <a name="appear" val="center"/>
+    </comp>
+    <comp lib="0" loc="(430,480)" name="Splitter">
+      <a name="fanout" val="30"/>
+      <a name="incoming" val="30"/>
+      <a name="appear" val="center"/>
+    </comp>
+    <comp lib="4" loc="(140,410)" name="Register">
+      <a name="width" val="32"/>
+    </comp>
+    <comp lib="0" loc="(60,740)" name="Pin">
+      <a name="label" val="Stall"/>
+    </comp>
+    <comp lib="0" loc="(870,470)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="32"/>
+      <a name="label" val="PCPlus4"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="0" loc="(320,480)" name="Splitter">
+      <a name="facing" val="west"/>
+      <a name="fanout" val="30"/>
+      <a name="incoming" val="30"/>
+      <a name="appear" val="center"/>
+    </comp>
+  </circuit>
+  <circuit name="instructionDecode">
+    <a name="circuit" val="instructionDecode"/>
     <a name="clabel" val=""/>
     <a name="clabelup" val="east"/>
     <a name="clabelfont" val="SansSerif bold 16"/>
