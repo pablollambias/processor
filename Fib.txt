@@ -1,0 +1,62 @@
+int i_Fibonacci(int n) {
+        int f1 = 0;
+        int f2 = 1;
+        int fi;
+
+        if(n == 0) {
+          return 0;
+        }
+
+        if(n == 1) {
+          return 1;
+        }
+
+        for(int i = 2; i <= n; i++) {
+            fi = f1 + f2;
+            f1 = f2;
+            f2 = fi;
+        }
+        return fi;
+    }
+For your implementation of the unrolled version of Fibonacci(4), store f1 in register r8, also known as $t0, store f2 in register r9, also known as $t1, and store fi in register r10, also known as $t2. Compute the 4th Fibonacci number. At the end of your function, instead of returning fi, simply store the value fi in register r2, also known as $v0.
+
+    //fib 3
+    int f1 = 0;
+    int f2 = 1;
+    int fi;
+    fi = f1 + f2;
+    f1 = f2;
+    f2 = fi;
+    fi = f1 + f2;
+    f1 = f2;
+    f2 = fi;
+    return fi;
+
+    //fib4
+    #n=0
+    addi $t0, $zero, 0 #sets f1 to 0
+    #n=1
+    addi $t1, $zero, 1 #sets f2 to 1
+    #n=2
+    add $t2, $t0, $t1 #sets fi = f1+f2
+    #f1=f2, f2=fi, increment
+    addi $t0, $t1, 0
+    addi $t1, $t2, 0
+    #n=3
+    add $t2, $t0, $t1 #sets fi = f1+f2
+    #f1=f2, f2=fi increment
+    addi $t0, $t1, 0
+    addi $t1, $t2, 0
+    #n=4
+    add $t2, $t0, $t1 #sets fi = f1+f2
+    #f1=f2, f2=fi increment
+    addi $t0, $t1, 0
+    addi $t1, $t2, 0
+
+    #final storage in register r2
+    addi $v0, $t2, 0
+
+
+
+
+
