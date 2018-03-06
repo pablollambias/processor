@@ -4,43 +4,17 @@ Questions for Alonzo:
 2. for sign extension is it all #s or just most seg bit
 3. is low order the lease seg bits of RS
 
+Instruction fetch subCircuit questions:
+1. what do we do with the clock- answered
+2. confirm about outputs- answered
+3. what the yellow box in the lec slides are
+4. what do we input into WE and the bottom input of the PC- answered
 
-
-Bits 26-31 (opcode) in instruction (deciding between I/J R types and LW/SW)
-    if all 0's then we have a R-type.
-    if bit 31=1 then LW/SW (ignore for this project)- make sure register values dont change)
-
--if not then we have an I/J type.
-    if bit 29=1 then I-Type
-    if not J OR Branch(Ignore for this project)- make sure register values dont change)
-
-* for R and I type we drew up a sketch of how to input into the ALU.
-
-What OpCode to input into the ALU
-    for R-Type
-        Question: 4. SLT, SLTU- how to compare 2 values rather than to 0 like in our gt, le ALU.
-                  5. SAR- how to change opcode to fit ALU
-                  6. control logic for SLLV, SRLV, and SRAV
-        ADDU, SUBU, AND, OR, XOR, NOR, SLL, SRL
-            shift left by one and take 4 least seg bits into ALU OpCode
-        SLLV, SRLV
-            look at 5 least seg bits from the value in the register that rs maps to and input that into shift amount.
-
-    for I-Type
-        ADDU, ADDI
-            shift right by 2 and take 4 least seg bits into ALU OpCode
-        ORI, XORI
-            shift left by one and take 4 least seg bits into ALU OpCode
-        Q. SLTI, SLTIU- how to compare to value and not 0
-        LUI
-            dont go into ALU
+Instruction Decode questions
+    Shift
+    1. how many bits do we put into Sa
+    2. is it possible to do it with one mux
 
 
 
-*rs is related to A in the ALU
-*rt is realated to B in the ALU
-*deal with hazards
-*big picture to small- break it down not too much.
-*add big idea about how we are going to test.
-* we can load up code into the ROM for testing.
 
