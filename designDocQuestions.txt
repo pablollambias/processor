@@ -14,6 +14,8 @@ Instruction Decode questions
     Shift
     1. how many bits do we put into Sa
     2. is it possible to do it with one mux
+    IType
+    1. bit extender
 
 
 
