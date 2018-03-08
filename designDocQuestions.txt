@@ -11,11 +11,14 @@ Instruction fetch subCircuit questions:
 4. what do we input into WE and the bottom input of the PC- answered
 
 Instruction Decode questions
+1. lots of and gates
     Shift
     1. how many bits do we put into Sa
     2. is it possible to do it with one mux
     IType
     1. bit extender
+
+
 
 
 
