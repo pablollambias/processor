@@ -1,0 +1,13 @@
+#Immediate Arithmetic Operation no Hazards.
+
+ADDIU $0, $1, 5  #0, bc 0 register should stay 0
+
+ADDIU $1, $1, 6  #6
+
+ADDIU $2, $2, 1  #1
+
+ADDIU $3, $3, 2  #2
+
+ADDIU $4, $4, 3  #3
+
+ADDIU $5, $0, 2  #2
