@@ -1,4 +1,6 @@
-#Immediate Arithmetic Operation no Hazards.
+#Immediate Arithmetic Operation.
+
+#ADDIU
 
 ADDIU $0, $1, 5  #0, bc 0 register should stay 0
 
@@ -11,3 +13,42 @@ ADDIU $3, $3, 2  #2
 ADDIU $4, $4, 3  #3
 
 ADDIU $5, $0, 2  #2
+
+ADDIU $6, $6, 1000 #1000
+
+ADDIU $10, $0, 32767 #32767, max int to a zero
+
+ADDIU $7, $1, 10 #16 6+10=16
+
+ADDIU $2, $2, 0 #1
+
+ADDIU $11, $5, 32767 #? adding a max int to a nonzero value
+
+ADDIU $12, $0, -20 #? adding negative to zero
+
+ADDIU $13, $5, -32767 #-32765 adding a min int to a nonzero value
+
+#ADDIU with hazards
+ADDIU $3, $7, 2  #18 from execute
+
+ADDIU $1, $7, 2  #18 from memory
+
+#ANDI
+
+ANDI $8, $0, 0 #0, 0 AND 0, testing zero
+
+ANDI $9, $4, 3 #3, 3 AND 3, testing same number
+
+ANDI $10, $6, 1243 #200 , testing a random number(dif numbers)
+
+#ANDI with hazards
+
+ANDI $11, $9, 3 # 3, from execute
+
+ANDI $12, $9, 2 # 2, from memory
+
+
+
+
+
+
