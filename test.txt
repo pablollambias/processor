@@ -43,9 +43,9 @@ ANDI $10, $6, 1243 #200 , testing a random number(dif numbers)
 
 #ANDI with hazards
 
-ANDI $11, $9, 3 # 3, from execute
+ANDI $14, $9, 3 # 3, from execute
 
-ANDI $12, $9, 2 # 2, from memory
+ANDI $15, $9, 2 # 2, from memory
 
 
 
