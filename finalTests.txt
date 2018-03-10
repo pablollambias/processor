@@ -76,7 +76,7 @@ XORI $31, $0, 0 #0, 0 OR 0, testing zero
 
 XORI $1, $20, 200 #0, 200 XOR 200, testing same number
 
-XORI $2, $26, 5672 #? , testing a random number(dif numbers)
+XORI $2, $26, 5672 #4855 , testing a random number(dif numbers)
 
 XORI $3, $19, 4 #7, no similar bits
 
@@ -109,11 +109,11 @@ SLTI $14, $30, 2987  #1 less than
 SLTI $15, $27, 5  #0 greater than
 
 #SLTIU with hazards
-SLTI $16, $14, 2757  #? WB to EX Forward
+SLTI $16, $14, 2757  #1 WB to EX Forward
 
-SLTI $17, $16, 2987  #?, MEM to EX Forward
+SLTI $17, $16, 2987  #1, MEM to EX Forward
 
-SLTI $18, $15, 56  #?, checks that register reads on falling edge so write and read from register can happen in same cycle.
+SLTI $18, $15, 56  #1, checks that register reads on falling edge so write and read from register can happen in same cycle.
 
 #R-Type
 
@@ -121,7 +121,7 @@ SLTI $18, $15, 56  #?, checks that register reads on falling edge so write and r
 
 ADDIU $19, $0, 32767 #32767, max int to a zero, using this op to test later op
 
-ADDU $20, $27, $30 #? adding 2 dif non zeros
+ADDU $20, $27, $30 #1542 adding 2 dif non zeros
 
 ADDU $21, $0, $0 #0, adding zeros
 
@@ -131,19 +131,98 @@ ADDU $23, $19, $3 #max int plus positive
 
 #ADDU with hazards
 
-ADDU $24, $22, $16  #?, WB to EX Forward
+ADDU $24, $22, $16  #4855, WB to EX Forward A
 
-ADDU $25, $24, $17 #?, MEM to Ex Forward
+ADDU $25, $17, $24  #4856, MEM to Ex Forward B
 
-ADDU $26, $23, $18  #?, checks that register reads on falling edge so write and read from register can happen in same cycle.
+ADDU $26, $23, $18  #32775, checks that register reads on falling edge so write and read from register can happen in same cycle.
 
-ADDU $27, $25, $26 #? double forwarding
+ADDU $27, $25, $26 #37631 double forwarding
 
-ADDU $28, $1, $2 #? for future test
+ADDU $28, $1, $2 #4855 for future test
 
-ADDU $28, $3, $4 #? for next test
+ADDU $28, $3, $4 #4861 for next test
 
-ADDU $29, $28, $5 #? testing that mem to ex forwarding is prioritized over wb to ex forwarding.
+ADDU $29, $28, $5 #9461 testing that mem to ex forwarding is prioritized over wb to ex forwarding. A
+
+#SUBU
+ADDIU $30, $0, -32767 #storing min int for future tests
+
+SUBU $31, $0, $19 #? subtracting max int from 0
+
+SUBU $1, $0, $0 #0, subtracting zeros
+
+SUBU $2, $19, $19 #max int - max int=0
+
+SUBU $3, $28, $27 #? subtracting two pos
+
+SUBU $4, $30, $27 # min int - pos int
+
+
+#SUBU with hazards
+
+SUBU $5, $16, $3  #?, WB to EX Forward B
+
+SUBU $6, $5, $17 #?, MEM to Ex Forward A
+
+SUBU $7, $18, $4  #?, checks that register reads on falling edge so write and read from register can happen in same cycle. Forward B
+
+SUBU $8, $6, $7 #? double forwarding
+
+SUBU $9, $1, $2 #? for future test
+
+SUBU $9, $3, $4 #? for next test
+
+SUBU $10, $9, $5 #? testing that mem to ex forwarding is prioritized over wb to ex forwarding.
+
+#AND
+
+AND $11, $0, $0 #0, 0 AND 0, testing zero
+
+AND $12, $4, $4 #?,testing same number
+
+AND $13, $6, $2 #? , testing 2 random registers
+
+#AND with hazards
+AND $14, $12, $1 #? WB to EX Forward A
+
+AND $15, $10, $14  #?, MEM to EX Forward B
+
+AND $16, $13, $3  #?, checks that register reads on falling edge so write and read from register can happen in same cycle. Forward A
+
+#OR
+OR $17, $0, $0 #0, 0 OR 0, testing zero
+
+OR $18, $20, $20 #?, testing same number
+
+OR $19, $1, $8 #? , testing a random registers
+
+#OR with hazards
+OR $20, $18, $4 #? WB to EX Forward A
+
+OR $21, $20, $6  #? MEM to EX Forward A
+
+OR $22, $19, $7  #?, checks that register reads on falling edge so write and read from register can happen in same cycle. Forward A
+
+OR $23, $5, $21 #? WB to EX Forward B
+
+OR $24, $2, $23  #? MEM to EX Forward B
+
+OR $25, $19, $22  #?, checks that register reads on falling edge so write and read from register can happen in same cycle. Forward B
+
+#XOR
+XOR $26, $0, $0 #0, testing zeros
+
+XOR $27, $20, $20 #0, testing same number
+
+XOR $28, $15, $10 #4855 , testing a random registers
+
+#XOR with hazards
+XOR $29, $2, $27 #3 WB to EX Forward B
+
+XOR $30, $30, $12  #? MEM to EX Forward A
+
+XOR $31, $28, $4  #?, checks that register reads on falling edge so write and read from register can happen in same cycle. Forward A
 
 
 
