@@ -296,7 +296,7 @@ MOVN $26, $25, $10  #0, MEM to EX Forward B
 
 #SLL
 
-SLL $27, $5, 4344  # shift by 0
+SLL $27, $5, 0  # shift by 0
 
 SLL $28, $8, 31 #0 max shift amount
 
@@ -355,7 +355,7 @@ LUI $17, 2786 #182583296
 
 LUI $18, 0 #0
 
-LUI $19, -16762 #-1098513342, negative number
+LUI $19, -167 #-1098513342, negative number
 
 LUI $20, 1723  #112918528
 
@@ -375,7 +375,7 @@ J 4 #0 nothing should happen should not jump to target
 
 JR $10 # PC should not change
 
-JAL 2879 # nothing should change registers and PC should remain he same.
+JAL 44 # nothing should change registers and PC should remain he same.
 
 JALR $12, $15 # registers should remain the same and pc should remain the same.
 
