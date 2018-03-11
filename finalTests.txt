@@ -355,8 +355,6 @@ LUI $17, 2786 #182583296
 
 LUI $18, 0 #0
 
-LUI $19, -16 #, negative number
-
 LUI $20, 1723  #
 
 #Table B instructions, need to make sure that no changes occer to the registers.
