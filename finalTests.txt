@@ -280,15 +280,15 @@ MOVN $21, $19, $28 #-37629 WB to EX Forward A
 MOVN $22, $2, $21  #69881, MEM to EX Forward B
 
 #MOVZ
-MOVZ $23, $10, $0 #-69881  should change on 0
+MOVZ $23, $10, $0 #0  should change on 0
 
-MOVZ $24, $11, $30 #0, register should not change on non 0
+MOVZ $24, $11, $30 #-69881, register should not change on non 0
 
 #MOVZ with hazards
 
 MOVZ $25, $19, $23 #-37629 WB to EX Forward A
 
-MOVZ $26, $25, $10  #0, MEM to EX Forward B
+MOVZ $26, $25, $10  #-37629, MEM to EX Forward B
 
 # Up to this point we checked all types of possible hazards, so from here on out we are testing only edge cases and no more hazards.
 
