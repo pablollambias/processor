@@ -1,0 +1,182 @@
+commit cc54380dba4b320cbd753008553ba4bc0347d535 (HEAD -> master, origin/master, origin/HEAD)
+Merge: 4f5aa48 79847fd
+Author: Pablo Llambias <Pablo@dhcp-gs-5306.eduroam.cornell.edu>
+Date:   Sun Mar 11 20:49:43 2018 -0400
+
+    design doc corrected
+
+commit 4f5aa48f0a580074a436ae6a0482c2ca16e92e19
+Author: Pablo Llambias <Pablo@dhcp-gs-5306.eduroam.cornell.edu>
+Date:   Sun Mar 11 20:42:27 2018 -0400
+
+    corrected final design doc
+
+commit 79847fd193981515380c9f88d31c914eabac459a
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 20:40:21 2018 -0400
+
+    fib with capped instructions
+
+commit 2eb82a4283a053f21d821c80180b1baecafca1c0
+Author: Pablo Llambias <Pablo@dhcp-rhodes-1959.eduroam.cornell.edu>
+Date:   Sun Mar 11 18:41:17 2018 -0400
+
+    Final MIPS, passed all test cases
+
+commit 402e9e944862d607be48c8d2361320748938e03c
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 17:43:58 2018 -0400
+
+    more changes to test cases
+
+commit 6c7014cf1180acb112a097148a941414e7b531f4
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 16:09:38 2018 -0400
+
+    another minor test change
+
+commit 4d3c44097bc7ddce57e33e353614d04c2cc4cafb
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 16:08:19 2018 -0400
+
+    tiny test change
+
+commit 7bcf25811047570618d5d60045c153e2bde1ec16
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 16:06:28 2018 -0400
+
+    sintax changes to test
+
+commit f08a110c4d98d4e52e418195628fcf83eaa12671
+Author: Pablo Llambias <Pablo@dhcp-rhodes-1959.eduroam.cornell.edu>
+Date:   Sun Mar 11 16:02:21 2018 -0400
+
+    uploading Final Design Doc
+
+commit 73c22dc3b1aef42331872b528d12c59ec44a6ee9
+Merge: 459fdd7 5de8871
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 15:57:57 2018 -0400
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/cs3410-2018sp-student/pl438-om72
+
+commit 459fdd734ba62be4d41fb45d0ab370e4b3341c4a
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun Mar 11 15:57:25 2018 -0400
+
+    Final test cases we better get 20/20 on these bad boys
+
+commit 5de887133c1b442de92f44909c735d8593c0b247
+Merge: 06f8784 b72851b
+Author: Pablo Llambias <Pablo@dhcp-uris-1768.eduroam.cornell.edu>
+Date:   Sat Mar 10 12:49:30 2018 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/cs3410-2018sp-student/pl438-om72
+
+    # Please enter a commit message to explain why this merge is necessary,
+    # especially if it merges an updated upstream into a topic branch.
+    #
+    # Lines starting with '#' will be ignored, and an empty message aborts
+    # the commit.
+
+commit 06f8784be72877f0b85d6ed6e67ee72ad7e287af
+Author: Pablo Llambias <Pablo@dhcp-uris-1768.eduroam.cornell.edu>
+Date:   Sat Mar 10 12:46:49 2018 -0500
+
+    adjusting forwarding logic muxes
+
+commit b72851b3f2e26494d877369f91e94a1ebed1275f
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat Mar 10 12:38:56 2018 -0500
+
+    more test cases and more to come
+
+commit c9091d8b8b090a55935993c157f1114ef355e1c1
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Fri Mar 9 22:31:03 2018 -0500
+
+    even more test cases
+
+commit 023de438e87c6024da32085a30b055d8c71e9291
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Fri Mar 9 21:56:39 2018 -0500
+
+    more test cases
+
+commit 23932019439aaecbe270eb5f7a7d3fb428f27d86
+Author: Pablo Llambias <Pablo@dhcp-hol-191.eduroam.cornell.edu>
+Date:   Fri Mar 9 21:46:34 2018 -0500
+
+    completed miniMIPS with forwarding
+
+commit 394ce500c52bb89a46ea9a45c1b95f47648a2358
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Thu Mar 8 22:38:41 2018 -0500
+
+    more test cases
+
+commit 92ce2e0666e22363f9b7a446c93056052caa485b
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Thu Mar 8 21:04:44 2018 -0500
+
+    test file
+
+commit 4df1b9b853057aaf1c3a2d7547c9dfc73081b3b1
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Thu Mar 8 16:54:21 2018 -0500
+
+    including forwarding hopefully final MIPS
+
+commit d6e34325c0231f81216b1b58ea7c81f9b3e2037c
+Author: Pablo Llambias <Pablo@Pablos-MacBook-Air.local>
+Date:   Thu Mar 8 01:17:46 2018 -0500
+
+    complete MIPS
+
+commit 7681c62b1e5ebd02117abebf9615fd58c52e8c2c
+Author: Pablo Llambias <Pablo@Pablos-MacBook-Air.local>
+Date:   Wed Mar 7 23:38:12 2018 -0500
+
+    execute circuit
+
+commit 89f1231286aa5e9816a737a8381ad4e8ad538e1d
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Wed Mar 7 01:24:39 2018 -0500
+
+    Instruction decode and sub circuits
+
+commit d9df6f8d33ec631883582e30903449faf4f295f7
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue Mar 6 16:43:12 2018 -0500
+
+    questions we had while writing shift
+
+commit a9346fd87f83ad11fad2e6c4be25c6315bde1ab4
+Author: Pablo Llambias <Pablo@Pablos-MacBook-Air.local>
+Date:   Tue Mar 6 16:41:52 2018 -0500
+
+    shift subcircuits
+
+commit 02e482d2dca957219a25e9d9048c965fe33db8a3
+Author: Pablo Llambias <Pablo@dhcp-rhodes-2073.eduroam.cornell.edu>
+Date:   Tue Mar 6 12:52:44 2018 -0500
+
+    adding preliminary instruction fetch sub circuit
+
+commit d88d9baf78189d804f60e4dd3d9ab3c5c50a8836
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue Mar 6 12:08:13 2018 -0500
+
+    with initial MIPS circ
+
+commit 384c9c772dc6d68e38f3c69515298c8be2b9cb16
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue Mar 6 11:56:46 2018 -0500
+
+    design doc stuff
+
+commit e97bbafa194ec87917ccbe59972c91754052027e
+Author: Alonzo James Farley <ajf237@cornell.edu>
+Date:   Mon Feb 26 18:09:31 2018 -0500
+
+    Initial commit

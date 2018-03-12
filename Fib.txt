@@ -1,5 +1,5 @@
 
-    //fib4
+
     #n=0
     ADDIU $t0, $zero, 0 #sets f1 to 0
     #n=1
