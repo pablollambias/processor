@@ -1,10 +1,62 @@
 
 
+    
+
+
+    #Prologue
+    #FIBONACCI
+    ADDIU $sp, $sp, -24
+    SW $ra, 20($sp)
+    SW $fp, 16($sp)
+
+    ADDIU $fp, $sp, 20
+
     #n=0
     ADDIU $t0, $zero, 0 #sets f1 to 0
     #n=1
     ADDIU $t1, $zero, 1 #sets f2 to 1
-    #n=2
+
+    BNE $a0, $zero, NEXT1:
+    MOVZ $v0, $zero, $zero
+    J DONE
+
+
+    NEXT1:
+    BNE $a0, $t1, LOOP:
+    MOVZ $v0, $t1, $zero
+    J DONE
+
+    
+    ADDIU $t3, $zero, 2
+
+    LOOP:
+
+    BNE $t3, $a0 , DONE:
+    ADDU $t4, $t0, $t1
+    ADDU $t0, $t1, $zero
+    ADDU $t1, $t0, $zero
+    ADDIU $t3, $t3, 1
+    J LOOP
+
+    MOVZ $v0, $t4, $zero
+
+    DONE:
+
+    #Epilogue
+    LW $fp, 16($sp)
+    LW $ra, 20($sp)
+    ADDIU $sp, $sp, 24
+    JR $ra
+
+
+
+
+
+
+
+
+
+///////
     ADDU $t2, $t0, $t1 #sets fi = f1+f2
     #f1=f2, f2=fi, increment
     ADDIU $t0, $t1, 0
