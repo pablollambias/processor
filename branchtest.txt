@@ -1,0 +1,107 @@
+#Branches
+
+#Test BEQ where branch is taken
+BEQ $0, $0, 4
+NOP
+NOP
+
+BEQ $1, $5, 16
+NOP
+NOP
+
+
+#set $r1 to 50000
+LUI $1, 5
+
+#Test BEQ not taken
+BEQ $1, $0, 8
+
+#Test BNE not taken
+BNE $0, $0, 8
+NOP
+NOP
+
+
+#Test BNE taken
+BNE $0, $1, 8
+NOP
+NOP
+
+
+#Set $r2 to -32780
+SUBU $2, $0, $1
+
+
+#BLTZ taken 
+BLTZ $2, 16
+NOP
+NOP
+
+#BLEZ taken 
+BLEZ $2, 4
+NOP
+NOP
+
+BLEZ $0, 8
+NOP
+NOP
+
+
+#BLEZ not taken
+BLEZ $1, 4
+NOP
+NOP
+
+
+#BGTZ taken
+BGTZ $1, 4
+NOP
+NOP
+
+
+#BGTZ not taken
+BGTZ $0, 4
+NOP
+NOP
+
+
+BGTZ $2, 16
+NOP
+NOP
+
+
+#BLTZ taken
+BLTZ $2, 4
+NOP
+NOP
+
+
+#BLTZ not taken
+BLTZ $0, 4
+NOP
+NOP
+
+
+BLTZ $1, 8
+NOP
+NOP
+
+
+#BGEZ taken
+BGEZ $0, 4
+NOP
+NOP
+
+
+BGEZ $1, 12
+NOP
+NOP
+
+
+
+#BGEZ not taken
+BGEZ $2, 8
+NOP
+NOP
+
+
