@@ -1,0 +1,275 @@
+#Jump Test Cases
+
+#J Test cases:
+
+J num1 #jumping forard
+SLL $0, $0, 0
+ADDIU, $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num2:
+ADDIU $6, $zero, 1 # register 6 should get one
+ADDIU $7, $zero, 2 # register 7 should get 2
+J num3 #jumps to next line so delay slot should be executed twice
+num3:
+ADDIU $8, $zero, 7 #should happen twice once as delay slop then once jump so $8=14
+SLL $0, $0, 0
+J num4 #jumps to JAL test cases
+SLL $0, $0, 0
+num1:
+ADDIU $3, $zero, 3 #$3 should be 3
+J num2 #jumping "backwards"
+SLL $0, $0, 0
+ADDIU, $4, $zero, 5 #should be flushed
+ADDIU $5, $zero, 6 #should not be executed so $5 should stay 0
+
+
+#JAL Test Cases
+num4:
+JAL num5 #JALing forward
+SLL $0, $0, 0
+ADDIU, $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num6:
+ADDIU $11, $zero, 1 # register 11 should get one
+ADDIU $12, $zero, 2 # register 12 should get 2
+JAL num7 #jumps to next line so delay slot should be executed twice
+num7:
+ADDIU $13, $zero, 10 #should happen twice once as delay slop then once jump so $13= 20
+###############
+JAL num8 # after this we are changing reg 31 so before this point we should check that reg 31 has the correct value.
+SLL $0, $0, 0
+num5:
+ADDIU $9, $zero, 1 # register 9 should get one
+ADDIU $10, $zero, 2 # register 10 should get 2
+JAL num6 #JALing "backward"
+SLL $0, $0, 0
+num8:
+ADDIU $31, $zero, 5 #$31=5
+JAL num9
+SLL $0, $0, 0
+SLL $0, $0, 0
+num9:
+ADDIU $14, $31, 0 #14 should get value of regiser so much larget than 5.
+ADDIU $15, $zero, 24
+JAL num10
+SLL $0, $0, 0
+num10:
+ADDIU $31, $zero ,3 #regiser 31 should have 3 and not register value
+J num11
+SLL $0, $0, 0
+
+
+#JR
+num11:
+ADDIU $15, $zero, 176 #$15 should get 8
+JR $15 #needs to jump to register 8 and not 24 ($15 prev value)
+SLL $0, $0, 0
+ADDIU $16, $zero, 7 #$16 should get 8 because this is the instruction that we are jumping to
+ADDIU $17, $zero, 6 #$17 should get 6
+ADDIU $18, $zero, 204
+ADDIU $22, $zero, 2
+JR $18
+SLL $0, $0, 0
+ADDIU $22, $zero, 5 #should be flushed, no change to reg 22 value(2)
+ADDIU $18, $zero, 6 #should be flushed to 18 should remain the same (192)
+
+#JALR
+ADDIU $19, $zero, 240 # value of rs should be forwarded to the JALR
+ADDIU $23, $zero, 3
+ADDIU $20, $zero,5 # should get 5 and then be immediately overritten by the JALR return address.
+JALR $20, $19
+SLL $0, $0, 0
+ADDIU $23, $zero, 4 3should be flushed so $23 should remain 3
+ADDIU $21, $zero, 10, $21 should get 10.
+JR $20 # should go to pc+8, so now $23 should get a value of 4.
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BEQ Test Cases
+ADDIU $24, $zero, 3
+ADDIU $25, $zero, 3
+ADDIU $29, $zero, 0
+ADDIU $30, $zero, 0
+ADDIU $1, $zero, 5
+ADDIU $2, $zero, 5
+BEQ $24, $25, branch1 #branch should be taken bc the registers equal.
+ADDIU $5, $zero, 19 # $5=19, branch is taken but want to make sure that delay slot is executed
+ADDIU $24, $24, 0 # should not change bc branch was taken
+ADDIU $25, $25, 0 # should not change bc branch was taken
+branch3:
+ADDIU $3, $zero, 6 #$3 should equal 6
+ADDIU $4, $zero, 7 #$4 should equal 7
+J endBEQ
+SLL $0, $0, 0
+branch1:
+ADDIU $26, $zero, 5 # $26=5
+ADDIU $27, $zero, 6 #$27=6
+BEQ $26, $27, branch2 #branch should not be taken
+SLL $0, $0, 0
+ADDIU $28, $zero, 1 #$28 should equal one because branch was not taken.
+BEQ $1, $2, branch3 # branching backwards this is equvalent to a negative offset
+SLL $0, $0, 0
+branch2:
+ADDIU $29, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+ADDIU $30, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+endBEQ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BNE Test Cases.
+ADDIU $6, $zero, 3
+ADDIU $7, $zero, 3
+ADDIU $8, $zero, 0
+ADDIU $9, $zero, 0
+ADDIU $10, $zero, 5
+ADDIU $11, $zero, 5
+BNE $6, $6, bne1 #branch should not be taken bc the registers equal.
+ADDIU $12, $zero, 19 # $12=19, branch is not taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should change because branch was not taken
+BNE $9, $10, bne2 #should branch bc not equal
+SLL $0, $0, 0
+bne3:
+ADDIU $17, $zero, 6 #$17 should equal 6
+ADDIU $18, $zero, 7 #$18 should equal 7
+J endBNE
+SLL $0, $0, 0
+bne2:
+ADDIU $14, $zero, 5 # $14=5
+ADDIU $15, $zero, 6 #$15=6
+BNE $10, $11, bne3 #branching backwards this is equvalent to a negative offset
+ADDIU $16, $zero, 4 #$16=4 bc delay slot should be executed
+bne1:
+ADDIU $6, $zero, 1 #should not change beacuse branch was not taken prev value= 3
+ADDIU $7, $zero, 1 #should not change beacuse branch was not taken prev value= 3
+endBNE:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BLEZ Test Cases:
+ADDIU $19, $zero, 3
+ADDIU $20, $zero, 0
+ADDIU $21, $zero, -5
+BLEZ $20, blez1 #branch should be taken bc reg 20=0
+ADDIU $22, $zero, 87 # $22=87, branch is  taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+blez2:
+ADDIU $24, $zero, 6 #$24 should equal 6
+BLEZ $19, blez3 #should not take branch because positive value
+ADDIU $25, $zero, 66 #$25 should equal 66 because delay slot should be exectuted
+ADDIU $26, $zero, 5 #$26= 5
+J endBLEZ
+SLL $0, $0, 0
+blez3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+blez1:
+ADDIU $23, $zero, 13 #$23=13 bc branch was taken
+BLEZ $21, blez2 #should branch bc less than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBLEZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BGTZ Test Cases:
+ADDIU $27, $zero, 200
+ADDIU $28, $zero, 0
+ADDIU $29, $zero, -527
+ADDIU $1, $zero, 2
+BGTZ $27, bgtz1 #branch should be taken bc reg 27>0
+ADDIU $30, $zero, 7 # $30=7, branch is taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bgtz2:
+ADDIU $2, $zero, 3 #$2 should equal 3
+BGTZ $28, bgtz3 #should not take branch because =0
+ADDIU $3, $zero, 69 #$3 should equal 69 because delay slot should be exectuted
+ADDIU $4, $zero, 98 #$4= 98
+BGTZ $29, bgtz4 #should not take bc<0
+SLL $0, $0, 0
+SLL $0, $0, 0
+ADDIU $5, $zero, 90 #$5 should equal 90.
+J endBGTZ
+SLL $0, $0, 0
+bgtz3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgtz4:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgtz1:
+ADDIU $31, $zero, 1 #$31=1 bc branch was taken
+BGTZ $1, bgtz2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBGTZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BLTZ Test Cases:
+ADDIU $6, $zero, 200
+ADDIU $7, $zero, 0
+ADDIU $8, $zero, -527
+ADDIU $11, $zero, -99
+BLTZ $8, bltz1 #branch should be taken bc reg 7<0
+ADDIU $10, $zero, 77 # $10=77, branch is taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bltz2:
+ADDIU $12, $zero, 3 #$12 should equal 3
+BLTZ $7, bltz3 #should not take branch because =0
+ADDIU $8, $zero, 69 #$8 should equal 69 because delay slot should be exectuted
+ADDIU $9, $zero, 9788 #$9= 9788
+BLTZ $6, bltz4 #should not take bc>0
+SLL $0, $0, 0
+SLL $0, $0, 0
+ADDIU $14, $zero, 95 #$14 should equal 95.
+J endBLTZ
+SLL $0, $0, 0
+bltz3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bltz4:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bltz1:
+ADDIU $9, $zero, 111 #$9=111 bc branch was taken
+BLTZ $11, bltz2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBLTZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BGEZ Test Cases:
+ADDIU $19, $zero, 10
+ADDIU $20, $zero, 0
+ADDIU $21, $zero, -16
+BGEZ $20, bgez1 #branch should be taken bc reg 20=0
+ADDIU $22, $zero, 87 # $22=87, branch is  taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bgez2:
+ADDIU $24, $zero, 6 #$24 should equal 6
+BGEZ $21, bgez3 #should not take branch because neg value
+ADDIU $25, $zero, 66 #$25 should equal 66 because delay slot should be exectuted
+ADDIU $26, $zero, 5 #$26= 5
+J endBGEZ
+SLL $0, $0, 0
+bgez3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgez1:
+ADDIU $23, $zero, 13 #$23=13 bc branch was taken
+BGEZ $10, bgez2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBGEZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+
+
