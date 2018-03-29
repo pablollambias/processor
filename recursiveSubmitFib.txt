@@ -1,0 +1,57 @@
+
+  
+
+    Prologue:
+    ADDIU $sp, $sp, -28
+    SW $ra, 24($sp)
+    SW $fp, 20($sp)
+    SW $a0, 16($sp)
+    SW $s0, 0($sp)
+
+    ADDIU $fp, $sp, 24
+
+
+    #intitializing temp to 1.
+    ADDIU $t0, $zero, 1
+
+
+    #if(n == 0), return 0.
+    BNE $a0, $zero, NEXT1
+    NOP
+    MOVZ $v0, $zero, $zero
+    J EPI
+    NOP
+
+    NEXT1:
+    #if (n==1), return 1.
+    BNE $a0, $t0, NEXT2
+    NOP
+    MOVZ $v0, $t0, $zero
+    J EPI
+    NOP
+
+    NEXT2:
+    #call function with $a0 as ($a0 -1) + function with $a0 as ($a0 -2). 
+    ADDIU $a0, $a0, -1
+    JAL Prologue
+    NOP
+
+    MOVZ $s0, $v0, $zero
+
+    LW $a0, 16($sp)
+    ADDIU $a0, $a0, -2
+    JAL Prologue 
+    NOP
+
+    ADDU $v0, $v0, $s0
+
+
+    EPI:
+    ADDIU $fp, $sp, -24
+    LW $s0, 0($sp)
+    LW $a0, 16($sp)
+    LW $fp, 20($sp)
+    LW $ra, 24($sp)
+    ADDIU $sp, $sp, 28
+
+    JR $ra

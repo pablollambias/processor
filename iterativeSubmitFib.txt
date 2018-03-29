@@ -1,0 +1,66 @@
+
+    #FIBONACCI
+    #setting up memory
+    
+
+    Prologue:
+    ADDIU $sp, $sp, -24
+    SW $ra, 20($sp)
+    SW $fp, 16($sp)
+
+    ADDIU $fp, $sp, 20
+
+    #n=0
+    ADDIU $t0, $zero, 0 #sets f1 to 0
+    #n=1
+    ADDIU $t1, $zero, 1 #sets f2 to 1
+
+    #initiliazing i for the for loop later
+    ADDIU $t3, $zero, 2
+    #incrementing n by 1 for the loop condition
+    ADDIU $t6, $a0, 1
+
+    BNE $a0, $zero, NEXT1
+    NOP
+    MOVZ $v0, $zero, $zero
+    J EPI
+
+
+    NEXT1:
+    NOP
+    BNE $a0, $t1, LOOP
+    NOP
+    MOVZ $v0, $t1, $zero
+    J EPI
+
+
+    LOOP:
+    #comparing i to n+1, if i is less than n+1, we want to go into loop. Else, branch
+    SLT $t5, $t3, $t6
+    BEQ $t5, $zero, DONE
+    NOP
+    ADDU $t4, $t0, $t1
+    ADDU $t0, $t1, $zero
+    ADDU $t1, $t4, $zero
+    ADDIU $t3, $t3, 1
+    J LOOP
+
+    DONE:
+
+    MOVZ $v0, $t4, $zero
+
+    EPI:
+
+    #Epilogue
+    ADDIU $fp, $sp, -20
+    LW $fp, 16($sp)
+    LW $ra, 20($sp)
+    ADDIU $sp, $sp, 24
+    JR $ra
+
+    
+
+
+
+
+

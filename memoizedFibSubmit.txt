@@ -1,0 +1,81 @@
+    
+    Prologue:
+
+    ADDIU $sp, $sp, -28
+    SW $ra, 24($sp)
+    SW $fp, 20($sp)
+    SW $a0, 16($sp)
+    SW $s0, 0($sp)
+
+    ADDIU $fp, $sp, 24
+
+
+    #intitializing temp to 1.
+    ADDIU $t0, $zero, 1
+
+    SLT $t1, $a0, $a2 #checking that n is less than size
+    BLEZ $t1, base1 #if n is not less than size, then we move to base case 1
+    NOP
+
+
+    SLL $t3, $a0, 2 
+    ADDU $t2, $a1, $t3
+    LW $t1, 0($t2)
+    BEQ $t1, $zero, base1 #if logArr[n]==0 then jump to base1
+    NOP
+
+
+    ADDIU $v0, $t1, 0 
+    J EPI 
+    NOP
+
+
+    base1:
+    BNE $a0, $zero, base2 
+    SLL $0, $0, 0
+    ADDIU $v0, $zero, 0
+    J EPI
+    NOP
+
+
+    base2:
+
+    BNE $a0, $t0, next #base case 2
+    SLL $0, $0, 0
+    ADDIU $v0, $zero, 1
+    J EPI
+    NOP
+
+    next:
+
+    ADDIU $a0, $a0, -1 #put n-1 in $a0
+    JAL Prologue 
+    NOP
+
+    ADDU $s0, $v0, $0 #$s0 gets result of fib(n-1)
+    LW $a0, 16($sp) #loading
+
+
+    ADDIU $a0, $a0, -2 #put n-2 in $a0
+    JAL Prologue 
+    NOP
+    LW $a0, 16($sp)
+
+    ADDU $v0, $s0, $v0 #sum of m_fib(n-1, log_array, size) and m_fib(n-2, log_array, size)
+    SLT $t3, $a0, $a2 #checking that n is less than size
+    BLEZ $t3, EPI
+    NOP
+    SLL $t3, $a0, 2 
+    ADDU $t4, $t3, $a1
+    SW $v0, 0($t4) #put result in log_array[n]
+
+
+    EPI:
+    ADDIU $fp, $sp, -24
+    LW $s0, 0($sp)
+    LW $a0, 16($sp)
+    LW $fp, 20($sp)
+    LW $ra, 24($sp)
+    ADDIU $sp, $sp, 28
+
+    JR $ra
