@@ -404,12 +404,14 @@ LB $0, 0($0) #loads 4 from 24 address in memory, but doesn't
 LB $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LB loads correct byte and sign extension works properly
-ADDIU $12, $0, -11206528 #putting number with 1's and 0's in different order in each byte
+ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
+SLL $12, $12, 16 #moving bits into the signficant bits 
+ADDIU $12, $12, 23168 #
 SW $12, 4($0) #putting ugly number above into 4 address
-LB $13, 4($0) #least sig byte, sign extended= 111111111111111111111111 10000000 hx=FFFFFF80, dec = -128
-LB $14, 5($0) #next byte, sign extended= 000000000000000000000000 00000000 hx = 0, dec =0
-LB $15, 6($0) #next byte, sign extended= 000000000000000000000000 01010101 hx = 55, dec=85
-LB $16, 7($0) #most sig byte, sgn ext = 111111111111111111111111 11111111 hx = FFFFFFFF, dec=-1
+LB $13, 4($0) #least sig byte, sign extended= 111111111111111111111111 10000000 hx=, dec =
+LB $14, 5($0) #next byte, sign extended= 000000000000000000000000 01011010 hx = , dec =
+LB $15, 6($0) #next byte, sign extended= 000000000000000000000000 00110000 hx = , dec=
+LB $16, 7($0) #most sig byte, sgn ext = 000000000000000000000000 01110101 hx = , dec=
 
 #check registers again here /////////////////////////////////////
 
@@ -471,12 +473,14 @@ LBU $0, 0($0) #loads 4 from 24 address in memory, but doesn't
 LBU $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LBU loads correct byte and zero extension works properly
-ADDIU $12, $0, -11206528 #putting number with 1's and 0's in different order in each byte
+ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
+SLL $12, $12, 16 #moving bits into the signficant bits 
+ADDIU $12, $12, 23168 #filling rest of bits
 SW $12, 4($0) #putting ugly number above into 4 address
-LBU $13, 4($0) #least sig byte, zero extended= 000000000000000000000000 10000000 hx=80, dec = 128
-LBU $14, 5($0) #next byte, zero extended= 000000000000000000000000 00000000 hx = 0, dec =0
-LBU $15, 6($0) #next byte, zero extended= 000000000000000000000000 01010101 hx = 55, dec=85
-LBU $16, 7($0) #most sig byte, zero ext = 000000000000000000000000 11111111 hx = FF, dec=255
+LBU $13, 4($0) #least sig byte, zero extended=  000000000000000000000000 10000000 hx=, dec =
+LBU $14, 5($0) #next byte, zero extended= 000000000000000000000000 01011010 hx = , dec =
+LBU $15, 6($0) #next byte, zero extended= 000000000000000000000000 00110000 hx = , dec=
+LBU $16, 7($0) #most sig byte, zero ext = 000000000000000000000000 01110101 hx = , dec=
 
 #check registers here ///////////////////////////////////
 
