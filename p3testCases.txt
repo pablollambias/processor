@@ -276,16 +276,6 @@ SLL $0, $0, 0
 SLL $0, $0, 0
 SLL $0, $0, 0
 
-
-
-
-
-
-
-
-
-
-
 #LW testing
 
 #LW with 0 offset and base reg 0
@@ -306,8 +296,8 @@ LW $4, 32764($0) #should read 12 from 32764 address, put into reg 4
 
 #LW with non-zero offset and non-zero reg
 ADDIU $1, $0, 24
-SW $1, 8($1) #should put 24 into the 20 address in memory
-LW $5, 8($1) #should read 24 from 20 address, put into reg 5
+SW $1, -4($1) #should put 24 into the 20 address in memory
+LW $5, -4($1) #should read 24 from 20 address, put into reg 5
 
 #LW with max negative offset, with register max pos
 ADDIU $4, $0, 32764
@@ -332,9 +322,10 @@ ADDIU $3, $8, 4 #reg 3 should get 28
 
 #load-use hazard (consecutively)
 ADDIU $7, $0, 4
+SW $7, 20($0)
 SW $7, 24($0) #puts 4 into 24 address
 SW $7, 28($0) #puts 4 into 28 address
-LW $9, 20($0) #loads 24 from 20 address in memory
+LW $9, 20($0) #loads 4 from 20 address in memory
 LW $10, 0($9) #loads 4 from 24 address in memory
 LW $11, 24($10) #loads 4 from 28 address in memory
 
@@ -366,8 +357,8 @@ LB $4, 32764($0) #should read 12 from 32767 address, put into reg 4
 
 #LB with non-zero offset and non-zero reg
 ADDIU $1, $0, 24
-SW $1, 8($1) #should put 24 into the 20 address in memory
-LB $5, 8($1) #should read 24 from 20 address, put into reg 5
+SW $1, -4($1) #should put 24 into the 20 address in memory
+LB $5, -4($1) #should read 24 from 20 address, put into reg 5
 
 #LB with max negative offset, with register max pos
 ADDIU $4, $0, 32764
@@ -405,7 +396,7 @@ LB $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LB loads correct byte and sign extension works properly
 ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
-SLL $12, $12, 16 #moving bits into the signficant bits 
+SLL $12, $12, 16 #moving bits into the signficant bits
 ADDIU $12, $12, 23168 #
 SW $12, 4($0) #putting ugly number above into 4 address
 LB $13, 4($0) #least sig byte, sign extended= 111111111111111111111111 10000000 hx=, dec =
@@ -435,8 +426,8 @@ LBU $4, 32764($0) #should read 12 from 32767 address, put into reg 4
 
 #LBU with non-zero offset and non-zero reg
 ADDIU $1, $0, 24
-SW $1, 8($1) #should put 24 into the 20 address in memory
-LBU $5, 8($1) #should read 24 from 20 address, put into reg 5
+SW $1, -4($1) #should put 24 into the 20 address in memory
+LBU $5, -4($1) #should read 24 from 20 address, put into reg 5
 
 #LBU with max negative offset, with register max pos
 ADDIU $4, $0, 32764
@@ -474,7 +465,7 @@ LBU $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LBU loads correct byte and zero extension works properly
 ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
-SLL $12, $12, 16 #moving bits into the signficant bits 
+SLL $12, $12, 16 #moving bits into the signficant bits
 ADDIU $12, $12, 23168 #filling rest of bits
 SW $12, 4($0) #putting ugly number above into 4 address
 LBU $13, 4($0) #least sig byte, zero extended=  000000000000000000000000 10000000 hx=, dec =
@@ -518,7 +509,14 @@ SW $5, 0($6) #stores 4 into mem address 16
 ADDIU $7, $0, 8
 SW $7, 0($5) #stores 8 into mem address 4
 
-#check regs here ///////////////////////////////////////
+
+#tests that we can write to 1mb of memory
+ADDIU $25, $0, 32764
+SLL $25, $25, 5
+ADDIU $25, $25, 124
+SW $7, 0($25)
+
+# #check regs here ///////////////////////////////////////
 
 #SB Testing
 
