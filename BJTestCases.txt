@@ -4,7 +4,7 @@
 
 J num1 #jumping forard
 SLL $0, $0, 0
-ADDIU, $1, $zero, 5 #should be flushed
+ADDIU $1, $zero, 5 #should be flushed
 ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
 num2:
 ADDIU $6, $zero, 1 # register 6 should get one
@@ -19,7 +19,7 @@ num1:
 ADDIU $3, $zero, 3 #$3 should be 3
 J num2 #jumping "backwards"
 SLL $0, $0, 0
-ADDIU, $4, $zero, 5 #should be flushed
+ADDIU $4, $zero, 5 #should be flushed
 ADDIU $5, $zero, 6 #should not be executed so $5 should stay 0
 
 
@@ -27,7 +27,7 @@ ADDIU $5, $zero, 6 #should not be executed so $5 should stay 0
 num4:
 JAL num5 #JALing forward
 SLL $0, $0, 0
-ADDIU, $1, $zero, 5 #should be flushed
+ADDIU $1, $zero, 5 #should be flushed
 ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
 num6:
 ADDIU $11, $zero, 1 # register 11 should get one
@@ -79,8 +79,8 @@ ADDIU $23, $zero, 3
 ADDIU $20, $zero,5 # should get 5 and then be immediately overritten by the JALR return address.
 JALR $20, $19
 SLL $0, $0, 0
-ADDIU $23, $zero, 4 3should be flushed so $23 should remain 3
-ADDIU $21, $zero, 10, $21 should get 10.
+ADDIU $23, $zero, 4 #should be flushed so $23 should remain 3
+ADDIU $21, $zero, 10 #$21 should get 10.
 JR $20 # should go to pc+8, so now $23 should get a value of 4.
 SLL $0, $0, 0
 SLL $0, $0, 0
