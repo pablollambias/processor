@@ -327,7 +327,7 @@ ADDIU $3, $8, 4 #reg 3 should get 28
 
 #load-use hazard (consecutively)
 ADDIU $7, $0, 4
-SW $7, 20($0) 
+SW $7, 20($0)
 SW $7, 24($0) #puts 4 into 24 address
 SW $7, 28($0) #puts 4 into 28 address
 LW $9, 20($0) #loads 4 from 20 address in memory
@@ -401,7 +401,7 @@ LB $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LB loads correct byte and sign extension works properly
 ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
-SLL $12, $12, 16 #moving bits into the signficant bits 
+SLL $12, $12, 16 #moving bits into the signficant bits
 ADDIU $12, $12, 23168 #
 SW $12, 4($0) #putting ugly number above into 4 address
 LB $13, 4($0) #least sig byte, sign extended= 111111111111111111111111 10000000 hx=, dec =
@@ -470,7 +470,7 @@ LBU $0, 24($0) #loads 4 from 28 address in memory, but doesn't
 
 #checking that LBU loads correct byte and zero extension works properly
 ADDIU $12, $0, 30000 #putting number with 1's and 0's in different order in each byte
-SLL $12, $12, 16 #moving bits into the signficant bits 
+SLL $12, $12, 16 #moving bits into the signficant bits
 ADDIU $12, $12, 23168 #filling rest of bits
 SW $12, 4($0) #putting ugly number above into 4 address
 LBU $13, 4($0) #least sig byte, zero extended=  000000000000000000000000 10000000 hx=, dec =
@@ -515,7 +515,7 @@ ADDIU $7, $0, 8
 SW $7, 0($5) #stores 8 into mem address 4
 
 
-#tests that we can write to 1MB of memory 
+#tests that we can write to 1MB of memory
 ADDIU $25, $0, 32764
 SLL $25, $25, 5
 ADDIU $25, $25, 124
@@ -584,7 +584,7 @@ ADDU $6, $5, $4
 ADDU $7, $6, $4
 ADDU $8, $6, $5
 
-#testing hazards with 0 register 
+#testing hazards with 0 register
 ADDU $0, $2, $3
 ADDU $0, $0, $2
 ADDU $0, $3, $0
@@ -686,6 +686,7 @@ XORI $5, $4, 782  #4600 MEM to EX Forward
 XORI $6, $3, 989  #986, checks that register reads on falling edge so write and read from register can happen in same cycle.
 
 #SLTI
+
 SLTI $7, $29, 783  #0 equal
 
 SLTI $8, $30, 2987  #1 less than
@@ -713,7 +714,7 @@ SLTIU $17, $16, 2987  #1, MEM to EX Forward
 
 SLTIU $18, $15, 56  #1, checks that register reads on falling edge so write and read from register can happen in same cycle.
 
-#R-Type
+# #R-Type
 
 #ADDU
 
@@ -953,5 +954,5 @@ LUI $17, 2786 #182583296
 
 LUI $18, 0 #0
 
-LUI $20, 1723  
+LUI $20, 1723
 
