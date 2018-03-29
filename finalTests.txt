@@ -1,3 +1,28 @@
+
+
+#testing triple hazard
+ADDIU $1, $0, 8
+ADDIU $2, $0, 8
+
+ADDU $3, $2, $1
+ADDU $4, $3, $2
+ADDU $5, $4, $3
+ADDU $6, $5, $4
+ADDU $7, $6, $4
+ADDU $8, $6, $5
+
+#testing hazards with 0 register 
+ADDU $0, $2, $3
+ADDU $0, $0, $2
+ADDU $0, $3, $0
+ADDU $0, $0, $0
+ADDU $0, $2, $3
+ADDU $0, $0, $0
+ADDU $0, $3, $2
+ADDU $0, $0, $0
+ADDU $0, $0, $0
+
+
 #Immediate Arithmetic Operation.
 
 #ADDIU
