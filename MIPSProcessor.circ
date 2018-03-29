@@ -727,12 +727,129 @@ end TCL_Generic;&#13;
       <a name="label" val="zap"/>
     </comp>
     <comp lib="10" loc="(460,230)" name="MIPSProgramROM">
-      <a name="contents">ADDIU $3, $0, 1
-SW $3, 0($0)
-LW $1, 0($0)
-ADDU $2, $1, $3
-LW $1, 0($0)
-SW $2, 4($0)
+      <a name="contents">#Jump Test Cases
+
+#J Test cases:
+
+J num1 #jumping forard
+SLL $0, $0, 0
+ADDIU $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num2:
+ADDIU $6, $zero, 1 # register 6 should get one
+ADDIU $7, $zero, 2 # register 7 should get 2
+J num3 #jumps to next line so delay slot should be executed twice
+num3:
+ADDIU $8, $zero, 7 #should happen twice once as delay slop then once jump so $8=14
+SLL $0, $0, 0
+J num4 #jumps to JAL test cases
+SLL $0, $0, 0
+num1:
+ADDIU $3, $zero, 3 #$3 should be 3
+J num2 #jumping "backwards"
+SLL $0, $0, 0
+ADDIU $4, $zero, 5 #should be flushed
+ADDIU $5, $zero, 6 #should not be executed so $5 should stay 0
+
+
+#JAL Test Cases
+num4:
+JAL num5 #JALing forward
+SLL $0, $0, 0
+ADDIU $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num6:
+ADDIU $11, $zero, 1 # register 11 should get one
+ADDIU $12, $zero, 2 # register 12 should get 2
+JAL num7 #jumps to next line so delay slot should be executed twice
+num7:
+ADDIU $13, $zero, 10 #should happen twice once as delay slop then once jump so $13= 20
+###############
+JAL num8 # after this we are changing reg 31 so before this point we should check that reg 31 has the correct value.
+SLL $0, $0, 0
+num5:
+ADDIU $9, $zero, 1 # register 9 should get one
+ADDIU $10, $zero, 2 # register 10 should get 2
+JAL num6 #JALing "backward"
+SLL $0, $0, 0
+num8:
+ADDIU $31, $zero, 5 #$31=5
+JAL num9
+SLL $0, $0, 0
+SLL $0, $0, 0
+num9:
+ADDIU $14, $31, 0 #14 should get value of regiser so much larget than 5.
+ADDIU $15, $zero, 24
+JAL num10
+SLL $0, $0, 0
+num10:
+ADDIU $31, $zero ,3 #regiser 31 should have 3 and not register value
+J num11
+SLL $0, $0, 0
+
+
+#JR
+num11:
+ADDIU $15, $zero, 176 #$15 should get 176
+JR $15 #needs to jump to register 8 and not 24 ($15 prev value)
+SLL $0, $0, 0
+ADDIU $16, $zero, 7 #$16 should get 8 because this is the instruction that we are jumping to
+ADDIU $17, $zero, 6 #$17 should get 6
+ADDIU $18, $zero, 204
+ADDIU $22, $zero, 2
+JR $18
+SLL $0, $0, 0
+ADDIU $22, $zero, 5 #should be flushed, no change to reg 22 value(2)
+ADDIU $18, $zero, 6 #should be flushed to 18 should remain the same (192)
+
+#JALR
+ADDIU $19, $zero, 240 # value of rs should be forwarded to the JALR
+ADDIU $23, $zero, 3
+ADDIU $20, $zero,5 # should get 5 and then be immediately overritten by the JALR return address.
+JALR $20, $19
+SLL $0, $0, 0
+ADDIU $23, $zero, 4 #should be flushed so $23 should remain 3
+ADDIU $21, $zero, 10 #$21 should get 10.
+JR $20 # should go to pc+8, so now $23 should get a value of 4.
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BEQ Test Cases
+ADDIU $24, $zero, 3
+ADDIU $25, $zero, 3
+ADDIU $29, $zero, 0
+ADDIU $30, $zero, 0
+ADDIU $1, $zero, 5
+ADDIU $2, $zero, 5
+BEQ $24, $25, branch1 #branch should be taken bc the registers equal.
+ADDIU $5, $zero, 19 # $5=19, branch is taken but want to make sure that delay slot is executed
+ADDIU $24, $24, 0 # should not change bc branch was taken
+ADDIU $25, $25, 0 # should not change bc branch was taken
+branch3:
+ADDIU $3, $zero, 6 #$3 should equal 6
+ADDIU $4, $zero, 7 #$4 should equal 7
+J endBEQ
+SLL $0, $0, 0
+branch1:
+ADDIU $26, $zero, 5 # $26=5
+ADDIU $27, $zero, 6 #$27=6
+BEQ $26, $27, branch2 #branch should not be taken
+SLL $0, $0, 0
+ADDIU $28, $zero, 1 #$28 should equal one because branch was not taken.
+BEQ $1, $2, branch3 # branching backwards this is equvalent to a negative offset
+SLL $0, $0, 0
+branch2:
+ADDIU $29, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+ADDIU $30, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+endBEQ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
 </a>
     </comp>
     <comp lib="4" loc="(140,410)" name="Register">
@@ -3805,6 +3922,7 @@ SW $2, 4($0)
       <a name="width" val="32"/>
       <a name="enable" val="false"/>
     </comp>
+    <comp lib="1" loc="(1470,930)" name="AND Gate"/>
     <comp lib="2" loc="(1240,1230)" name="Multiplexer">
       <a name="width" val="32"/>
       <a name="enable" val="false"/>
@@ -4178,7 +4296,6 @@ SW $2, 4($0)
       <a name="label" val="B"/>
     </comp>
     <comp lib="1" loc="(520,530)" name="OR Gate"/>
-    <comp lib="1" loc="(1470,930)" name="AND Gate"/>
     <comp lib="1" loc="(640,1350)" name="NOT Gate"/>
     <comp lib="0" loc="(130,900)" name="Pin">
       <a name="label" val="MOVZ"/>

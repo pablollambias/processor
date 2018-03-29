@@ -36,6 +36,7 @@ JAL num7 #jumps to next line so delay slot should be executed twice
 num7:
 ADDIU $13, $zero, 10 #should happen twice once as delay slop then once jump so $13= 20
 ###############
+SLL $0, $0, 0
 JAL num8 # after this we are changing reg 31 so before this point we should check that reg 31 has the correct value.
 SLL $0, $0, 0
 num5:
@@ -61,32 +62,36 @@ SLL $0, $0, 0
 
 #JR
 num11:
-ADDIU $15, $zero, 176 #$15 should get 8
-JR $15 #needs to jump to register 8 and not 24 ($15 prev value)
+ADDIU $15, $zero, 180 #$15 should get 180
+JR $15 # ($15 prev value 180)
 SLL $0, $0, 0
-ADDIU $16, $zero, 7 #$16 should get 8 because this is the instruction that we are jumping to
+ADDIU $16, $zero, 7 #$16 should get 7 because this is the instruction that we are jumping to
 ADDIU $17, $zero, 6 #$17 should get 6
-ADDIU $18, $zero, 204
+ADDIU $18, $zero, 208
 ADDIU $22, $zero, 2
-JR $18
-SLL $0, $0, 0
-ADDIU $22, $zero, 5 #should be flushed, no change to reg 22 value(2)
-ADDIU $18, $zero, 6 #should be flushed to 18 should remain the same (192)
+JR $18 #should jump tp ADDIU $19
+ADDIU $22, $zero, 5 #delay slot should be executed
+ADDIU $18, $zero, 6 #should be flushed, 18 should remain the same (204)
 
 #JALR
 ADDIU $19, $zero, 240 # value of rs should be forwarded to the JALR
-ADDIU $23, $zero, 3
 ADDIU $20, $zero,5 # should get 5 and then be immediately overritten by the JALR return address.
 JALR $20, $19
+ADDIU $23, $zero, 3 #delay slot should be executed.
 SLL $0, $0, 0
-ADDIU $23, $zero, 4 #should be flushed so $23 should remain 3
-ADDIU $21, $zero, 10 #$21 should get 10.
+J jalr1
+ADDIU $23, $zero, 4 #will never be executed
+ADDIU $21, $zero, 10 #will never be executed
 JR $20 # should go to pc+8, so now $23 should get a value of 4.
 SLL $0, $0, 0
 SLL $0, $0, 0
 SLL $0, $0, 0
 SLL $0, $0, 0
+jalr1:
+ADDIU $7, $zero,276
+JALR  $8, $7
 SLL $0, $0, 0
+JALR $3, $4 #should never be executed bc in pc +8 should be zapped
 SLL $0, $0, 0
 
 #BEQ Test Cases
