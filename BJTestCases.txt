@@ -88,7 +88,7 @@ SLL $0, $0, 0
 SLL $0, $0, 0
 SLL $0, $0, 0
 jalr1:
-ADDIU $7, $zero,276
+ADDIU $7, $zero,276 #jumps to last SLL before BEQ
 JALR  $8, $7
 SLL $0, $0, 0
 JALR $3, $4 #should never be executed bc in pc +8 should be zapped

@@ -1,0 +1,565 @@
+#Jump Test Cases
+
+#J Test cases:
+
+J num1 #jumping forard
+SLL $0, $0, 0
+ADDIU $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num2:
+ADDIU $6, $zero, 1 # register 6 should get one
+ADDIU $7, $zero, 2 # register 7 should get 2
+J num3 #jumps to next line so delay slot should be executed twice
+num3:
+ADDIU $8, $zero, 7 #should happen twice once as delay slop then once jump so $8=14
+SLL $0, $0, 0
+J num4 #jumps to JAL test cases
+SLL $0, $0, 0
+num1:
+ADDIU $3, $zero, 3 #$3 should be 3
+J num2 #jumping "backwards"
+SLL $0, $0, 0
+ADDIU $4, $zero, 5 #should be flushed
+ADDIU $5, $zero, 6 #should not be executed so $5 should stay 0
+
+
+#JAL Test Cases
+num4:
+JAL num5 #JALing forward
+SLL $0, $0, 0
+ADDIU $1, $zero, 5 #should be flushed
+ADDIU $2, $zero, 6 #should not be executed so $2 should stay 0
+num6:
+ADDIU $11, $zero, 1 # register 11 should get one
+ADDIU $12, $zero, 2 # register 12 should get 2
+JAL num7 #jumps to next line so delay slot should be executed twice
+num7:
+ADDIU $13, $zero, 10 #should happen twice once as delay slop then once jump so $13= 20
+###############
+SLL $0, $0, 0
+JAL num8 # after this we are changing reg 31 so before this point we should check that reg 31 has the correct value.
+SLL $0, $0, 0
+num5:
+ADDIU $9, $zero, 1 # register 9 should get one
+ADDIU $10, $zero, 2 # register 10 should get 2
+JAL num6 #JALing "backward"
+SLL $0, $0, 0
+num8:
+ADDIU $31, $zero, 5 #$31=5
+JAL num9
+SLL $0, $0, 0
+SLL $0, $0, 0
+num9:
+ADDIU $14, $31, 0 #14 should get value of regiser so much larget than 5.
+ADDIU $15, $zero, 24
+JAL num10
+SLL $0, $0, 0
+num10:
+ADDIU $31, $zero ,3 #regiser 31 should have 3 and not register value
+J num11
+SLL $0, $0, 0
+
+
+#JR
+num11:
+ADDIU $15, $zero, 180 #$15 should get 180
+JR $15 # ($15 prev value 180)
+SLL $0, $0, 0
+ADDIU $16, $zero, 7 #$16 should get 7 because this is the instruction that we are jumping to
+ADDIU $17, $zero, 6 #$17 should get 6
+ADDIU $18, $zero, 208
+ADDIU $22, $zero, 2
+JR $18 #should jump tp ADDIU $19
+ADDIU $22, $zero, 5 #delay slot should be executed
+ADDIU $18, $zero, 6 #should be flushed, 18 should remain the same (204)
+
+#JALR
+ADDIU $19, $zero, 240 # value of rs should be forwarded to the JALR
+ADDIU $20, $zero,5 # should get 5 and then be immediately overritten by the JALR return address.
+JALR $20, $19
+ADDIU $23, $zero, 3 #delay slot should be executed.
+SLL $0, $0, 0
+J jalr1
+ADDIU $23, $zero, 4 #will never be executed
+ADDIU $21, $zero, 10 #will never be executed
+JR $20 # should go to pc+8, so now $23 should get a value of 4.
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+jalr1:
+ADDIU $7, $zero,276 #jumps to last SLL before BEQ
+JALR  $8, $7
+SLL $0, $0, 0
+JALR $3, $4 #should never be executed bc in pc +8 should be zapped
+SLL $0, $0, 0
+
+#BEQ Test Cases
+ADDIU $24, $zero, 3
+ADDIU $25, $zero, 3
+ADDIU $29, $zero, 0
+ADDIU $30, $zero, 0
+ADDIU $1, $zero, 5
+ADDIU $2, $zero, 5
+BEQ $24, $25, branch1 #branch should be taken bc the registers equal.
+ADDIU $5, $zero, 19 # $5=19, branch is taken but want to make sure that delay slot is executed
+ADDIU $24, $24, 0 # should not change bc branch was taken
+ADDIU $25, $25, 0 # should not change bc branch was taken
+branch3:
+ADDIU $3, $zero, 6 #$3 should equal 6
+ADDIU $4, $zero, 7 #$4 should equal 7
+J endBEQ
+SLL $0, $0, 0
+branch1:
+ADDIU $26, $zero, 5 # $26=5
+ADDIU $27, $zero, 6 #$27=6
+BEQ $26, $27, branch2 #branch should not be taken
+SLL $0, $0, 0
+ADDIU $28, $zero, 1 #$28 should equal one because branch was not taken.
+BEQ $1, $2, branch3 # branching backwards this is equvalent to a negative offset
+SLL $0, $0, 0
+branch2:
+ADDIU $29, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+ADDIU $30, $zero, 1 #should not change beacuse branch was not taken prev value= 0
+endBEQ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BNE Test Cases.
+ADDIU $6, $zero, 3
+ADDIU $7, $zero, 3
+ADDIU $8, $zero, 0
+ADDIU $9, $zero, 0
+ADDIU $10, $zero, 5
+ADDIU $11, $zero, 5
+BNE $6, $6, bne1 #branch should not be taken bc the registers equal.
+ADDIU $12, $zero, 19 # $12=19, branch is not taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should change because branch was not taken
+BNE $9, $10, bne2 #should branch bc not equal
+SLL $0, $0, 0
+bne3:
+ADDIU $17, $zero, 6 #$17 should equal 6
+ADDIU $18, $zero, 7 #$18 should equal 7
+J endBNE
+SLL $0, $0, 0
+bne2:
+ADDIU $14, $zero, 5 # $14=5
+ADDIU $15, $zero, 6 #$15=6
+BNE $10, $11, bne3 #branching backwards this is equvalent to a negative offset
+ADDIU $16, $zero, 4 #$16=4 bc delay slot should be executed
+bne1:
+ADDIU $6, $zero, 1 #should not change beacuse branch was not taken prev value= 3
+ADDIU $7, $zero, 1 #should not change beacuse branch was not taken prev value= 3
+endBNE:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BLEZ Test Cases:
+ADDIU $19, $zero, 3
+ADDIU $20, $zero, 0
+ADDIU $21, $zero, -5
+BLEZ $20, blez1 #branch should be taken bc reg 20=0
+ADDIU $22, $zero, 87 # $22=87, branch is  taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+blez2:
+ADDIU $24, $zero, 6 #$24 should equal 6
+BLEZ $19, blez3 #should not take branch because positive value
+ADDIU $25, $zero, 66 #$25 should equal 66 because delay slot should be exectuted
+ADDIU $26, $zero, 5 #$26= 5
+J endBLEZ
+SLL $0, $0, 0
+blez3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+blez1:
+ADDIU $23, $zero, 13 #$23=13 bc branch was taken
+BLEZ $21, blez2 #should branch bc less than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBLEZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BGTZ Test Cases:
+ADDIU $27, $zero, 200
+ADDIU $28, $zero, 0
+ADDIU $29, $zero, -527
+ADDIU $1, $zero, 2
+BGTZ $27, bgtz1 #branch should be taken bc reg 27>0
+ADDIU $30, $zero, 7 # $30=7, branch is taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bgtz2:
+ADDIU $2, $zero, 3 #$2 should equal 3
+BGTZ $28, bgtz3 #should not take branch because =0
+ADDIU $3, $zero, 69 #$3 should equal 69 because delay slot should be exectuted
+ADDIU $4, $zero, 98 #$4= 98
+BGTZ $29, bgtz4 #should not take bc<0
+SLL $0, $0, 0
+SLL $0, $0, 0
+ADDIU $5, $zero, 90 #$5 should equal 90.
+J endBGTZ
+SLL $0, $0, 0
+bgtz3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgtz4:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgtz1:
+ADDIU $31, $zero, 1 #$31=1 bc branch was taken
+BGTZ $1, bgtz2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBGTZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BLTZ Test Cases:
+ADDIU $6, $zero, 200
+ADDIU $7, $zero, 0
+ADDIU $8, $zero, -527
+ADDIU $11, $zero, -99
+BLTZ $8, bltz1 #branch should be taken bc reg 7<0
+ADDIU $10, $zero, 77 # $10=77, branch is taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bltz2:
+ADDIU $12, $zero, 3 #$12 should equal 3
+BLTZ $7, bltz3 #should not take branch because =0
+ADDIU $8, $zero, 69 #$8 should equal 69 because delay slot should be exectuted
+ADDIU $9, $zero, 9788 #$9= 9788
+BLTZ $6, bltz4 #should not take bc>0
+SLL $0, $0, 0
+SLL $0, $0, 0
+ADDIU $14, $zero, 95 #$14 should equal 95.
+J endBLTZ
+SLL $0, $0, 0
+bltz3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bltz4:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bltz1:
+ADDIU $9, $zero, 111 #$9=111 bc branch was taken
+BLTZ $11, bltz2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBLTZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+#BGEZ Test Cases:
+ADDIU $19, $zero, 10
+ADDIU $20, $zero, 0
+ADDIU $21, $zero, -16
+BGEZ $20, bgez1 #branch should be taken bc reg 20=0
+ADDIU $22, $zero, 87 # $22=87, branch is  taken, want to make sure that delay slot is executed
+ADDIU $13, $zero, 27 # should not change because branch was taken (prev=27)
+bgez2:
+ADDIU $24, $zero, 6 #$24 should equal 6
+BGEZ $21, bgez3 #should not take branch because neg value
+ADDIU $25, $zero, 66 #$25 should equal 66 because delay slot should be exectuted
+ADDIU $26, $zero, 5 #$26= 5
+J endBGEZ
+SLL $0, $0, 0
+bgez3:
+ADDIU $17, $zero, 6 #$17 should not change, never comes in here (equal 6)
+bgez1:
+ADDIU $23, $zero, 13 #$23=13 bc branch was taken
+BGEZ $10, bgez2 #should branch bc greater than 0 and testing backwards branching = negative offset
+SLL $0, $0, 0
+endBGEZ:
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+SLL $0, $0, 0
+
+
+
+
+
+
+
+
+
+
+
+#LW testing
+
+#LW with 0 offset and base reg 0
+ADDIU $1, $0, 16
+SW $1, 0($0) #should put 16 into the 0 address in memory
+LW $2, 0($0) #should read 16 from 0 address, put it into register 2
+
+#LW with 0 offset and non zero reg
+ADDIU $1, $0, 20
+ADDIU $2, $0, 16
+SW $1, 16($0) #should put 20 into the 16 address in memory
+LW $3, 0($2) #should read 20 from 16 address, put into reg 3
+
+#LW with max multiple of 4 offset and reg 0
+ADDIU $1, $0, 12
+SW $1, 32764($0) #should put 12 into the 32764 address in memory
+LW $4, 32764($0) #should read 12 from 32764 address, put into reg 4
+
+#LW with non-zero offset and non-zero reg
+ADDIU $1, $0, 24
+SW $1, 8($1) #should put 24 into the 20 address in memory
+LW $5, 8($1) #should read 24 from 20 address, put into reg 5
+
+#LW with max negative offset, with register max pos
+ADDIU $4, $0, 32764
+SW $1, -32764($4) # should put 24 into the 0 address in memory
+LW $6, -32764($4) #should read 24 from the 0 address in memory
+
+#test that the value that LW loads can be forwarded (two and three instructions away)
+LW $7, 0($0) #loads 24 into reg 7
+NOP
+ADDIU $1, $7, 0 # 1 should get 24
+ADDIU $2, $7, 0 # 2 should get 24
+
+#tests same as set immediately above, but with 0 register
+LW $0, 0($0) #loads 24 into reg 0, but doesn't
+NOP
+ADDIU $3, $0, 0 # 3 should get 0
+ADDIU $4, $0, 0 # 4 should get 0
+
+#load-use hazard, tests stalling (single)
+LW $8, 20($0) #loads 24 from 20 address in memory
+ADDIU $3, $8, 4 #reg 3 should get 28
+
+#load-use hazard (consecutively)
+ADDIU $7, $0, 4
+SW $7, 24($0) #puts 4 into 24 address
+SW $7, 28($0) #puts 4 into 28 address
+LW $9, 20($0) #loads 24 from 20 address in memory
+LW $10, 0($9) #loads 4 from 24 address in memory
+LW $11, 24($10) #loads 4 from 28 address in memory
+
+#testing load-use hazard with 0 register
+LW $0, 20($0) #loads 24 from 20 address in memory, but doesn't
+LW $0, 0($0) #loads 4 from 24 address in memory, but doesn't
+LW $0, 24($0) #loads 4 from 28 address in memory, but doesn't
+
+
+#test until here dog, then check //////////////////////////////////
+
+#LB testing
+
+#LB with 0 offset and base reg 0
+ADDIU $1, $0, 16
+SW $1, 0($0) #should put 16 into the 0 address in memory
+LB $2, 0($0) #should read 16 from 0 address, put it into register 2
+
+#LB with 0 offset and non zero reg
+ADDIU $1, $0, 20
+ADDIU $2, $0, 16
+SW $1, 16($0) #should put 20 into the 16 address in memory
+LB $3, 0($2) #should read 20 from 16 address, put into reg 3
+
+#LB with max offset and reg 0
+ADDIU $1, $0, 12
+SW $1, 32764($0) #should put 12 into the 32764 address in memory
+LB $4, 32764($0) #should read 12 from 32767 address, put into reg 4
+
+#LB with non-zero offset and non-zero reg
+ADDIU $1, $0, 24
+SW $1, 8($1) #should put 24 into the 20 address in memory
+LB $5, 8($1) #should read 24 from 20 address, put into reg 5
+
+#LB with max negative offset, with register max pos
+ADDIU $4, $0, 32764
+SW $1, -32764($4) # should put 24 into the 0 address in memory
+LB $6, -32764($4) #should read 24 from the 0 address in memory
+
+#test that the value that LB loads can be forwarded (two and three instructions away)
+LB $7, 0($0) #loads 24 into reg 7
+NOP
+ADDIU $1, $7, 0 # 1 should get 24
+ADDIU $2, $7, 0 # 2 should get 24
+
+#tests same as set immediately above, but with 0 register
+LB $0, 0($0) #loads 24 into reg 0, but doesn't
+NOP
+ADDIU $3, $0, 0 # 3 should get 0
+ADDIU $4, $0, 0 # 4 should get 0
+
+#load-use hazard, tests stalling (single)
+LB $8, 20($0) #loads 24 from 20 address in memory
+ADDIU $3, $8, 4 #reg 3 should get 28
+
+#load-use hazard (consecutively)
+ADDIU $7, $0, 4
+SW $7, 24($0) #puts 4 into 24 address
+SW $7, 28($0) #puts 4 into 28 address
+LB $9, 20($0) #loads 24 from 20 address in memory
+LB $10, 0($9) #loads 4 from 24 address in memory
+LB $11, 24($10) #loads 4 from 28 address in memory
+
+#testing load-use hazard with 0 register
+LB $0, 20($0) #loads 24 from 20 address in memory, but doesn't
+LB $0, 0($0) #loads 4 from 24 address in memory, but doesn't
+LB $0, 24($0) #loads 4 from 28 address in memory, but doesn't
+
+#checking that LB loads correct byte and sign extension works properly
+ADDIU $12, $0, -11206528 #putting number with 1's and 0's in different order in each byte
+SW $12, 4($0) #putting ugly number above into 4 address
+LB $13, 4($0) #least sig byte, sign extended= 111111111111111111111111 10000000 hx=FFFFFF80, dec = -128
+LB $14, 5($0) #next byte, sign extended= 000000000000000000000000 00000000 hx = 0, dec =0
+LB $15, 6($0) #next byte, sign extended= 000000000000000000000000 01010101 hx = 55, dec=85
+LB $16, 7($0) #most sig byte, sgn ext = 111111111111111111111111 11111111 hx = FFFFFFFF, dec=-1
+
+#check registers again here /////////////////////////////////////
+
+#LBU testing
+
+#LBU with 0 offset and base reg 0
+ADDIU $1, $0, 16
+SW $1, 0($0) #should put 16 into the 0 address in memory
+LBU $2, 0($0) #should read 16 from 0 address, put it into register 2
+
+#LBU with 0 offset and non zero reg
+ADDIU $1, $0, 20
+ADDIU $2, $0, 16
+SW $1, 16($0) #should put 20 into the 16 address in memory
+LBU $3, 0($2) #should read 20 from 16 address, put into reg 3
+
+#LBU with max offset and reg 0
+ADDIU $1, $0, 12
+SW $1, 32764($0) #should put 12 into the 32767 address in memory
+LBU $4, 32764($0) #should read 12 from 32767 address, put into reg 4
+
+#LBU with non-zero offset and non-zero reg
+ADDIU $1, $0, 24
+SW $1, 8($1) #should put 24 into the 20 address in memory
+LBU $5, 8($1) #should read 24 from 20 address, put into reg 5
+
+#LBU with max negative offset, with register max pos
+ADDIU $4, $0, 32764
+SW $1, -32764($4) # should put 24 into the 0 address in memory
+LBU $6, -32764($4) #should read 24 from the 0 address in memory
+
+#test that the value that LBU loads can be forwarded (two and three instructions away)
+LBU $7, 0($0) #loads 24 into reg 7
+NOP
+ADDIU $1, $7, 0 # 1 should get 24
+ADDIU $2, $7, 0 # 2 should get 24
+
+#tests same as set immediately above, but with 0 register
+LBU $0, 0($0) #loads 24 into reg 0, but doesn't
+NOP
+ADDIU $3, $0, 0 # 3 should get 0
+ADDIU $4, $0, 0 # 4 should get 0
+
+#load-use hazard, tests stalling (single)
+LBU $8, 20($0) #loads 24 from 20 address in memory
+ADDIU $3, $8, 4 #reg 3 should get 28
+
+#load-use hazard (consecutively)
+ADDIU $7, $0, 4
+SW $7, 24($0) #puts 4 into 24 address
+SW $7, 28($0) #puts 4 into 28 address
+LBU $9, 20($0) #loads 24 from 20 address in memory
+LBU $10, 0($9) #loads 4 from 24 address in memory
+LBU $11, 24($10) #loads 4 from 28 address in memory
+
+#testing load-use hazard with 0 register
+LBU $0, 20($0) #loads 24 from 20 address in memory, but doesn't
+LBU $0, 0($0) #loads 4 from 24 address in memory, but doesn't
+LBU $0, 24($0) #loads 4 from 28 address in memory, but doesn't
+
+#checking that LBU loads correct byte and zero extension works properly
+ADDIU $12, $0, -11206528 #putting number with 1's and 0's in different order in each byte
+SW $12, 4($0) #putting ugly number above into 4 address
+LBU $13, 4($0) #least sig byte, zero extended= 000000000000000000000000 10000000 hx=80, dec = 128
+LBU $14, 5($0) #next byte, zero extended= 000000000000000000000000 00000000 hx = 0, dec =0
+LBU $15, 6($0) #next byte, zero extended= 000000000000000000000000 01010101 hx = 55, dec=85
+LBU $16, 7($0) #most sig byte, zero ext = 000000000000000000000000 11111111 hx = FF, dec=255
+
+#check registers here ///////////////////////////////////
+
+#SW Testing
+
+#SW with 0 offset and base reg 0
+ADDIU $1, $0, 16
+SW $1, 0($0) #should put 16 into the 0 address in memory
+
+#SW with 0 offset and non zero reg
+ADDIU $1, $0, 20
+ADDIU $2, $0, 16
+SW $1, 16($0) #should put 20 into the 16 address in memory
+
+#SW with max offset and reg 0
+ADDIU $1, $0, 12
+SW $1, 32764($0) #should put 12 into the 32767 address in memory
+
+#SW with non-zero offset and non-zero reg
+ADDIU $1, $0, 24
+SW $1, 8($1) #should put 24 into the 20 address in memory
+
+#SW with max negative offset, with register max pos
+ADDIU $4, $0, 32764
+SW $1, -32764($4) # should put 24 into the 0 address in memory
+
+#testing forwarding to SW args works properly
+
+ADDIU $5, $0, 4
+ADDIU $6, $0, 16
+SW $6, 0($5) #stores 16 into mem address 4
+SW $5, 0($6) #stores 4 into mem address 16
+
+#tests writing to place that has non-zero val
+ADDIU $7, $0, 8
+SW $7, 0($5) #stores 8 into mem address 4
+
+#check regs here ///////////////////////////////////////
+
+#SB Testing
+
+#SB with 0 offset and base reg 0
+ADDIU $1, $0, 16
+SB $1, 0($0) #should put 16 into the 0 address in memory
+
+#SB with 0 offset and non zero reg
+ADDIU $1, $0, 20
+ADDIU $2, $0, 16
+SB $1, 16($0) #should put 20 into the 16 address in memory
+
+#SB with max offset and reg 0
+ADDIU $1, $0, 12
+SB $1, 32767($0) #should put 12 into the 32767 address in memory
+
+#SB with non-zero offset and non-zero reg
+ADDIU $1, $0, 24
+SB $1, 8($1) #should put 24 into the 20 address in memory
+
+#SB with max negative offset, with register max pos
+ADDIU $4, $0, 32764
+SB $1, -32764($4) # should put 24 into the 0 address in memory
+
+#testing forwarding to SB args works properly
+ADDIU $5, $0, 4
+ADDIU $6, $0, 16
+SB $6, 0($5) #stores 16 into mem address 4
+SB $5, 0($6) #stores 4 into mem address 16
+
+#tests writing to place that has non-zero val
+ADDIU $7, $0, 8
+SB $7, 0($5) #stores 8 into mem address 4
+
+#tests that byte is stored into correct place
+ADDIU $8, $0, 85 #putting byte into reg8, bin of last 8 bits= 01010101
+ADDIU $9, $0, -16 #bin = 111111111111111111111111 11110000, only last 8bits will be stored later
+ADDIU $10, $0, 15 #another byte, bin of last 8 bits= 00001111
+ADDIU $11, $0, 102 #another byte, bin of last 8 bits= 01100110
+SB $8, 8($0) #should load bin = 01010101 into least sig byte of word
+SB $9, 9($0) #should load bin = 11110000 into second byte of word
+SB $10, 10($0) # should load bin = 00001111 into third byte of word
+SB $11, 11($0) #should load bin= 01100110 into fourth byte of word
+
+LW $12, 8($0) #should load entire word composed of bytes above. bin = 01100110000011111111000001010101, dec = 1712320597, hex = 660FF055
+
+
+
