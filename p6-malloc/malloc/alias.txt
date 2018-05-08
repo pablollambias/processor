@@ -1,0 +1,3 @@
+# Insert your alias name here. Make it appropriate and no cross-scripting or
+# HTML injections! (we reserve the right to remove any alias that does not
+# meet these requirements)
