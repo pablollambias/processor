@@ -38,10 +38,15 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	unsigned int minLeftOver = head->contigFree;
 	blockMeta *bestHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
 	while(blockHead < (blockMeta *)ADD_BYTES(head, head->heapSize)){
-		if((blockHead->size)%2 ==0){
+		if(((blockHead->size)%2 == 0) &&(((blockHead->size)-8) > block_size )){
 			if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
 				bestHead = blockHead;
-				minLeftOver = blockHead->size - block_size - (2*(sizeof(blockMeta)));
+				if(block_size %8 ==0){
+					minLeftOver = blockHead->size - block_size - (2*(sizeof(blockMeta)));
+				}
+				else{
+					minLeftOver = blockHead->size - block_size + 8 - (block_size%8)- (2*(sizeof(blockMeta)));
+				}
 			}
 		}
 		blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
@@ -62,21 +67,31 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	blockMeta *oldPointer= blockHead;
 	unsigned int oldSize = blockHead->size;
 	//change blockhead size to new block size+1 plus space for header and footer
-	blockHead->size = block_size- (block_size%8) + 8 +(sizeof(blockMeta))*2 +1;
+	if(block_size%8 != 0){
+		blockHead->size = block_size- (block_size%8) + 8 +(sizeof(blockMeta))*2 +1;
+	}
+	else{
+		blockHead->size = block_size +(sizeof(blockMeta))*2 +1;
+	}
 	//make new block footer
-	blockFoot = (blockMeta *)((ADD_BYTES(blockHead, block_size-(block_size%8)+8+sizeof(blockMeta))));
+	blockFoot = (blockMeta *)((ADD_BYTES(blockHead, blockHead->size - ((blockHead->size)%2) -sizeof(blockMeta))));
 	#ifdef PRINT_DEBUG
 		printf("New Foot= %p\n", blockFoot);
 	#endif
-	blockFoot->size = block_size - (block_size%8) + 8 + (sizeof(blockMeta))*2 +1;
+	blockFoot->size = blockHead->size;
 	// only need to make new header and update footer for left over if the sizes dont match up perfectly 
-	if((blockMeta *)(ADD_BYTES(blockFoot,3*(sizeof(blockMeta)))) < (blockMeta *)(ADD_BYTES(oldPointer, oldSize))){
+	if((blockMeta *)(ADD_BYTES(blockFoot,3*(sizeof(blockMeta)))) <= (blockMeta *)(ADD_BYTES(oldPointer, oldSize))){
 		//make new header for leftover block 
 		blockHead = (blockMeta *)(ADD_BYTES(blockFoot, sizeof(blockMeta)));
 		#ifdef PRINT_DEBUG
 			printf("head for free block = %p\n", blockHead);
 		#endif
-		blockHead->size = oldSize - block_size -2*(sizeof(blockMeta)) + (block_size%8) - 8;
+		if(block_size%8 != 0){
+			blockHead->size = oldSize - block_size -2*(sizeof(blockMeta)) + (block_size%8) - 8;
+		}
+		else{
+			blockHead->size = oldSize - block_size -2*(sizeof(blockMeta));
+		}
 		#ifdef PRINT_DEBUG
 			printf("block head for free block size = %d\n", blockHead->size);
 		#endif
@@ -85,7 +100,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		#ifdef PRINT_DEBUG
 			printf("foot for free block = %p\n", blockFoot);
 		#endif
-		blockFoot->size = oldSize - block_size -2*(sizeof(blockMeta))+(block_size%8) - 8;
+		blockFoot->size = blockHead->size;
 	}
 	#ifdef PRINT_DEBUG
 		printf("first matching block pointer = %p\n", (void *)(ADD_BYTES(oldPointer,sizeof(blockMeta))));
