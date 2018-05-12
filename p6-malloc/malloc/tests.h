@@ -252,9 +252,9 @@ int test06() {
 int test07() {
 	char heap [HEAP_SIZE];
 	hl_init(heap, HEAP_SIZE);
-	char *ourPointer = hl_alloc(heap, HEAP_SIZE);
+	char *ourPointer = hl_alloc(heap, HEAP_SIZE-40);
 	hl_release(heap, ourPointer);
-	hl_alloc(heap, HEAP_SIZE);
+	hl_alloc(heap, HEAP_SIZE-40);
 
     return SUCCESS;
 

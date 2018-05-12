@@ -3,7 +3,7 @@
 #define ADD_BYTES(base_addr, num_bytes) (((char *)(base_addr))+(num_bytes))
 #define SUB_BYTES(base_addr, num_bytes) (((char *)(base_addr))-(num_bytes))
 
-#define PRINT_DEBUG
+//#define PRINT_DEBUG
 
 //struct for heap header 
 typedef struct _heapMeta{
@@ -162,12 +162,6 @@ void hl_release_no_lock(void *heap, void *block) {
 		head = (heapMeta *)ADD_BYTES(heap, 8-(heapInt%8));
 	}
 	blockMeta *blockHead = (blockMeta *)(block);
-	if(((SUB_BYTES(blockHead, 4)) < (ADD_BYTES(head, 8))) || (ADD_BYTES(blockHead,8)> ADD_BYTES(head, head->heapSize))){
-		#ifdef PRINT_DEBUG
-			printf("out of range \n");
-		#endif	
-		return;
-	}
 	if(block == 0){
 		return;
 	}
