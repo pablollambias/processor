@@ -186,8 +186,15 @@ int test03() {
  * MANIFESTATION OF ERROR:
  */
 int test04() {
-
+	char heap[HEAP_SIZE];
+	hl_init(heap, HEAP_SIZE);
+	char *ourpointer = hl_alloc(heap, 15);
+	if(((uintptr_t )ourpointer) % 8 != 0){
     return FAILURE;
+  }
+  else{
+	  return SUCCESS;
+}
 }
 
 /* FUNCTIONS BEING TESTED: init, alloc
@@ -198,22 +205,30 @@ int test04() {
  * MANIFESTATION OF ERROR:
  */
 int test05() {
-
+char heap[1025];
+	hl_init(heap, 1025);
+	char *ourpointer = hl_alloc(heap, 15);
+	if(((uintptr_t )ourpointer) % 8 != 0){
     return FAILURE;
+  }
+  else{
+	  return SUCCESS;
+}
 }
 
 /* FUNCTIONS BEING TESTED: free
- * SPECIFICATION BEING TESTED:
- * hl_release of zero acts as a nop
- *
+ * SPECIFICATION BEING TESTED:  free: acts like nop when block is NULL
  * MANIFESTATION OF ERROR:
  */
 int test06() {
+	char heap[HEAP_SIZE];
+	hl_init(heap, HEAP_SIZE);
+	char *nullPointer = 0;
+	hl_release(heap, nullPointer);
 
-    return FAILURE;
+    return SUCCESS;
 }
 
-#define NPOINTERS3 5
 
 /* FUNCTIONS BEING TESTED: free
  * SPECIFICATION BEING TESTED: freed blocks should be allocatable again
@@ -223,8 +238,13 @@ int test06() {
  *
  */
 int test07() {
+	char heap [HEAP_SIZE];
+	hl_init(heap, HEAP_SIZE);
+	char *ourPointer = hl_alloc(heap, HEAP_SIZE);
+	hl_release(heap, ourPointer);
+	hl_alloc(heap, HEAP_SIZE);
 
-    return FAILURE;
+    return SUCCESS;
 
 }
 
@@ -236,11 +256,16 @@ int test07() {
  * MANIFESTATION OF ERROR:
  */
 int test08() {
-
-    return FAILURE;
-
+	char heap[HEAP_SIZE];
+	hl_init(heap, HEAP_SIZE);
+	char *nullPointer = 0;
+	char *ourPointer = hl_resize(heap, nullPointer, 8);
+	if((ourPointer< heap) | (ourPointer > heap +HEAP_SIZE) | (ourPointer >heap +HEAP_SIZE -8)){
+		return FAILURE;
+	}else{
+    return SUCCESS;
 }
-
+}
 /* FUNCTIONS BEING TESTED: resize
  * SPECIFICATION BEING TESTED:
  * should copy over the values from its memory area when resizing
@@ -480,13 +505,12 @@ int test21() {
     return FAILURE;
 }
 
-/* FUNCTIONS BEING TESTED: 
- * SPECIFICATION BEING TESTED:
+/* FUNCTIONS BEING TESTED: lock and unlock
+ * SPECIFICATION BEING TESTED: set lock to 1 and try grabbing it. should result in infinate loop
  * MANIFESTATION OF ERROR:
  *
  */
 int test22() {
-
     return FAILURE;
 }
 
