@@ -205,10 +205,22 @@ int test04() {
  * MANIFESTATION OF ERROR:
  */
 int test05() {
-char heap[1025];
+	char heap[1025];
 	hl_init(heap, 1025);
 	char *ourpointer = hl_alloc(heap, 15);
+	char *our2 = hl_alloc(heap, 34);
+	char *our3 = hl_alloc(heap, 32);
+	char *our4 = hl_alloc(heap, 12);
 	if(((uintptr_t )ourpointer) % 8 != 0){
+    return FAILURE;
+  }
+  	if(((uintptr_t )our2) % 8 != 0){
+    return FAILURE;
+  }
+  	if(((uintptr_t )our3) % 8 != 0){
+    return FAILURE;
+  }
+  	if(((uintptr_t )our4) % 8 != 0){
     return FAILURE;
   }
   else{
