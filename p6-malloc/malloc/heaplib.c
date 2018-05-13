@@ -33,7 +33,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		head = (heapMeta *)heap;
 	}
 	else{
-		head = (heapMeta *)ADD_BYTES(heap, 8-(heapInt%8));
+		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 	}
 		blockMeta *blockHead = (blockMeta *)head;
 	blockMeta *blockFoot = (blockMeta *)head;
@@ -53,7 +53,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	//optimazation goal is to put requested block in free block with least left over bytes.
 	unsigned int minLeftOver = head->contigFree;
 	blockMeta *bestHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
-	while(blockHead < (blockMeta *)ADD_BYTES(head, head->heapSize)){
+	while(blockHead < (blockMeta *)(ADD_BYTES(head, head->heapSize))){
 		if(((blockHead->size)%2 == 0) &&(((blockHead->size)-8) > block_size )){
 			if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
 				bestHead = blockHead;
@@ -159,15 +159,15 @@ void hl_release_no_lock(void *heap, void *block) {
 		head = (heapMeta *)heap;
 	}
 	else{
-		head = (heapMeta *)ADD_BYTES(heap, 8-(heapInt%8));
+		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 	}
 	blockMeta *blockHead = (blockMeta *)(block);
 	if(block == 0){
 		return;
 	}
 	// find the block that we would like to free and change the inUse attribute to False;
-	blockHead = (blockMeta *)SUB_BYTES(block,4);
-	blockMeta *blockFoot = (blockMeta *)SUB_BYTES(block,4);
+	blockHead = (blockMeta *)(SUB_BYTES(block,4));
+	blockMeta *blockFoot = (blockMeta *)(SUB_BYTES(block,4));
 	blockFoot = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size - ((blockHead->size)%2) -4)));
 	#ifdef PRINT_DEBUG
 		printf("changing to not in use\n");
@@ -184,8 +184,8 @@ void hl_release_no_lock(void *heap, void *block) {
 	#endif
 	//checks if block above is free
 	if((void *)(SUB_BYTES(blockHead,20)) >= (void *) (head)){
-		blockMeta *prevFoot = (blockMeta *)SUB_BYTES(blockHead,4);
-		blockMeta *prevHead = (blockMeta *)SUB_BYTES(prevFoot, prevFoot->size -((prevFoot->size)%2)  -4);
+		blockMeta *prevFoot = (blockMeta *)(SUB_BYTES(blockHead,4));
+		blockMeta *prevHead = (blockMeta *)(SUB_BYTES(prevFoot, prevFoot->size -((prevFoot->size)%2)  -4));
 		if((prevFoot->size)%2 ==0){
 			prevHead->size = prevHead->size + blockHead->size;
 			blockFoot->size = prevHead->size + blockHead->size;
@@ -194,8 +194,8 @@ void hl_release_no_lock(void *heap, void *block) {
 	}
 	//checks if block below is free
 	if((void *)(ADD_BYTES(blockFoot,12)) <= (void *)(ADD_BYTES(head,head->heapSize))){
-		blockMeta *nextHead = (blockMeta *)ADD_BYTES(blockFoot,4);
-		blockMeta *nextFoot = (blockMeta *)ADD_BYTES(nextHead, nextHead->size - ((nextHead->size)%2)-4);
+		blockMeta *nextHead = (blockMeta *)(ADD_BYTES(blockFoot,4));
+		blockMeta *nextFoot = (blockMeta *)(ADD_BYTES(nextHead, nextHead->size - ((nextHead->size)%2)-4));
 		if((nextHead->size)%2 ==0){
 			blockHead->size = blockHead->size +nextHead->size;
 			nextFoot->size = blockHead->size +nextHead->size;
@@ -244,7 +244,7 @@ void hl_init(void *heap, unsigned int heap_size) {
 		head->heapSize = heap_size - heap_size%8;
 	}
 	else{
-		head = (heapMeta *)ADD_BYTES(heap, 8-(heapInt%8));
+		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 		head->heapSize = (heap_size -8+(heapInt%8)) -((heap_size -8+(heapInt%8))%8);
 	}
 	head->contigFree = (head->heapSize - 12) -8;
@@ -338,13 +338,16 @@ void *hl_resize(void *heap, void *block, unsigned int new_size) {
 		return hl_alloc_no_lock(heap, new_size);
 	}
 	heapMeta *head;
+	//checking for heap alignment at beginning of the heap
 	unsigned int heapInt = (unsigned int)(heap);
 	if(heapInt%8 ==0){
 		head = (heapMeta *)heap;
 	}
 	else{
-		head = (heapMeta *)ADD_BYTES(heap, 8-(heapInt%8));
+		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 	}
+	//mem copy implementation without overlapping conflicts
+	//copy into stack
 	blockMeta *oldBlockHead = (blockMeta *)(SUB_BYTES(block,4));
 	unsigned int oldSize = oldBlockHead->size - (2*(sizeof(blockMeta)));
 	char tempArr[oldSize];
@@ -353,14 +356,31 @@ void *hl_resize(void *heap, void *block, unsigned int new_size) {
 	for(int i=0; i< oldSize;i++){
 		tempArr[i]=oldDataStartChar[i];
 	}
-	hl_release_no_lock(heap, block);
-	void *newDataStart = hl_alloc_no_lock(heap, new_size);
-	char *newDataStartChar= (char *)(newDataStart);
-	if(newDataStart == NULL){
-		return NULL;
+	unsigned int adjFreeSize = oldSize;
+	blockMeta *prevTail = (blockMeta *)(SUB_BYTES(oldBlockHead,4));
+	blockMeta *nextHead = (blockMeta *)(ADD_BYTES(oldBlockHead,oldBlockHead->size));
+	if(prevTail%2 ==0){
+		adjFreeSize+= prevTail->size;
 	}
-	for(int j=0; j< oldSize;j++){
-		newDataStartChar[j] = tempArr[j];
+	if(nextHead%2 == 0){
+		adjFreeSize+= nextHead->size;
+	}
+	unsigned int farFree= head->contigFree;
+	void *newDataStart
+	if((adjfreeSize >=new_size) || (farFree>= new_size)){
+		hl_release_no_lock(heap, block);
+		//copy back into heap into new location
+		newDataStart = hl_alloc_no_lock(heap, new_size);
+		char *newDataStartChar= (char *)(newDataStart);
+		if(newDataStart == NULL){
+			return NULL;
+		}
+		for(int j=0; j< oldSize;j++){
+			newDataStartChar[j] = tempArr[j];
+		}
+	}
+	else{
+		newDataStart = 0;
 	}
 	spin_unlock(malloc_lock);
 	return newDataStart;

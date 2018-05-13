@@ -279,14 +279,27 @@ int test08() {
 }
 }
 /* FUNCTIONS BEING TESTED: resize
- * SPECIFICATION BEING TESTED:
+ * SPECIFICATION BEING TESTED:alloc and free a bunch of times
  * should copy over the values from its memory area when resizing
  *
  * MANIFESTATION OF ERROR:
  */
 int test09() {
+	char heap [1024];
+	hl_init(heap, 1024);
+	char *ourPointer = hl_alloc(heap, 200);
+	char *our2 = hl_alloc(heap, 200);
+	char *our3= hl_alloc(heap, 400);
+	char *our4 = hl_alloc(heap, 100);
+	hl_release(heap, ourPointer);
+	hl_alloc(heap, 100);
+	hl_alloc(heap,100);
+	hl_release(heap, our2);
+	hl_alloc(heap, 89);
+	//hl_release(heap, our2);
+	hl_alloc(heap, 10);
 
-    return FAILURE;
+    return SUCCESS;
 }
 
 /* Find something that you think heaplame does wrong. Make a test
