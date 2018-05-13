@@ -35,9 +35,8 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	else{
 		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 	}
-		blockMeta *blockHead = (blockMeta *)head;
-	blockMeta *blockFoot = (blockMeta *)head;
-	blockHead+= sizeof(heapMeta)/sizeof(blockMeta);
+	blockMeta *blockHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
+	blockMeta *blockFoot = (blockMeta *)(ADD_BYTES(blockHead, blockHead->size -4));
 	
 	//checks if the block asked for is greater than the largest contig mem available in the heap.
 	if(block_size%8==0){
@@ -52,16 +51,21 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	}
 	//optimazation goal is to put requested block in free block with least left over bytes.
 	unsigned int minLeftOver = head->contigFree;
-	blockMeta *bestHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
-	while(blockHead < (blockMeta *)(ADD_BYTES(head, head->heapSize))){
+	blockMeta *bestHead = blockHead;
+	// added the -8 at the end to take care of cases where there is a stranded 1-7 bytes at the end which are not enough for block meta
+	while(blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
 		if(((blockHead->size)%2 == 0) &&(((blockHead->size)-8) > block_size )){
-			if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
-				bestHead = blockHead;
-				if(block_size %8 ==0){
+			//i moved the block_size mod eight one level out because the if statements comparing to the minLeftOver need to be different
+			if(block_size %8 ==0){
+				if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
+					bestHead = blockHead;
 					minLeftOver = blockHead->size - block_size - (2*(sizeof(blockMeta)));
 				}
-				else{
-					minLeftOver = blockHead->size - block_size + 8 - (block_size%8)- (2*(sizeof(blockMeta)));
+			}
+			else{
+				if((blockHead->size - block_size +8 - (block_size%8)- (2*(sizeof(blockMeta))))<minLeftOver){
+					bestHead = blockHead;
+					minLeftOver = blockHead->size - block_size + 8 - (block_size%8) - (2*(sizeof(blockMeta)));
 				}
 			}
 		}
@@ -71,7 +75,6 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	//while(((((blockHead->size)%2) != 0) || (((blockHead->size)-8) < block_size)) && (ADD_BYTES(blockHead, (block_size + block_size%8)) < ADD_BYTES(head,(head->heapSize)))){
 		//blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
 	//}
-	//was +8 for add bytes we dont remember why
 	blockHead = bestHead;
 	if(blockHead > (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
 		return NULL;
@@ -126,7 +129,8 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	//update contig free
 	blockHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
 	unsigned int maxContig =0;
-	while((blockMeta *)(ADD_BYTES(blockHead,8)) <(blockMeta *)(ADD_BYTES(head, head->heapSize))){
+	//maybe it is not good to compare block head but we should do something with foot instead before was just ADD_BYTES(blockHead, 8)
+	while((blockMeta *)(ADD_BYTES(blockHead, blockHead->size +8)) <= (blockMeta *)(ADD_BYTES(head, head->heapSize))){
 		if(((blockHead->size) >maxContig)&& (blockHead->size)%2==0){
 			maxContig = (blockHead->size) - 8;
 		}
@@ -208,7 +212,8 @@ void hl_release_no_lock(void *heap, void *block) {
 	#endif
 	blockHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
 	unsigned int maxContig =0;
-	while((blockMeta *)(ADD_BYTES(blockHead,8)) <(blockMeta *)(ADD_BYTES(head, head->heapSize))){
+	// change to contig free with same reasoning from alloc
+	while((blockMeta *)(ADD_BYTES(blockHead,blockHead->size + 8)) <(blockMeta *)(ADD_BYTES(head, head->heapSize))){
 		if(((blockHead->size) >maxContig)&& (blockHead->size)%2==0){
 			maxContig = (blockHead->size) - 8;
 		}
@@ -247,17 +252,18 @@ void hl_init(void *heap, unsigned int heap_size) {
 		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 		head->heapSize = (heap_size -8+(heapInt%8)) -((heap_size -8+(heapInt%8))%8);
 	}
-	head->contigFree = (head->heapSize - 12) -8;
+	head->contigFree = (head->heapSize - 16) -8;
 	
 	blockMeta *blockHead = (blockMeta *)head;
 	//blockhead increments by 4 bytes and we want to increment it by 8 bytes
 	blockHead += sizeof(heapMeta)/sizeof(blockMeta);
-	blockMeta *blockFoot = (blockMeta *)(ADD_BYTES(head, head->heapSize-sizeof(blockMeta)));
+	blockMeta *blockFoot = (blockMeta *)(ADD_BYTES(head, head->heapSize- 2*sizeof(blockMeta)));
+	
 	
 	//assign heap meta to beginning of heap
 	//initializing the rest of the heap to be one unused block (with a header and footer)
-	blockHead->size = (head->heapSize - 12);
-	blockFoot->size = (head->heapSize - 12);
+	blockHead->size = (head->heapSize - 16);
+	blockFoot->size = (head->heapSize - 16);
 	#ifdef PRINT_DEBUG
 		printf("Heap Size = %u\n", head->heapSize);
 		printf("Heap head pointer = %p\n", head);
@@ -359,15 +365,15 @@ void *hl_resize(void *heap, void *block, unsigned int new_size) {
 	unsigned int adjFreeSize = oldSize;
 	blockMeta *prevTail = (blockMeta *)(SUB_BYTES(oldBlockHead,4));
 	blockMeta *nextHead = (blockMeta *)(ADD_BYTES(oldBlockHead,oldBlockHead->size));
-	if(prevTail%2 ==0){
+	if(prevTail->size%2 ==0){
 		adjFreeSize+= prevTail->size;
 	}
-	if(nextHead%2 == 0){
+	if(nextHead->size%2 == 0){
 		adjFreeSize+= nextHead->size;
 	}
 	unsigned int farFree= head->contigFree;
-	void *newDataStart
-	if((adjfreeSize >=new_size) || (farFree>= new_size)){
+	void *newDataStart;
+	if((adjFreeSize >=new_size) || (farFree>= new_size)){
 		hl_release_no_lock(heap, block);
 		//copy back into heap into new location
 		newDataStart = hl_alloc_no_lock(heap, new_size);
