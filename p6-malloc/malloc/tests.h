@@ -12,6 +12,7 @@ typedef unsigned int uintptr_t;
 #define ARRAY_LEN 16
 #define NUM_TESTS 24
 #define NPOINTERS 100
+#define PRINT_DEBUG
 
 // TODO: Add test descriptions as you add more tests...
 const char* test_descriptions[] = {
@@ -250,11 +251,15 @@ int test06() {
  *
  */
 int test07() {
-	char heap [HEAP_SIZE];
+	char heap [2048];
 	hl_init(heap, HEAP_SIZE);
-	char *ourPointer = hl_alloc(heap, HEAP_SIZE-40);
-	hl_release(heap, ourPointer);
-	hl_alloc(heap, HEAP_SIZE-40);
+	for(int i=0; i<500;i++){
+		char *ourPointer = hl_alloc(heap, 2048-(3*i));
+		if(ourPointer == NULL){
+			return FAILURE;
+		}
+		hl_release(heap, ourPointer);
+	}
 
     return SUCCESS;
 
@@ -287,18 +292,12 @@ int test08() {
 int test09() {
 	char heap [1024];
 	hl_init(heap, 1024);
-	char *ourPointer = hl_alloc(heap, 200);
-	char *our2 = hl_alloc(heap, 200);
-	char *our3= hl_alloc(heap, 400);
-	char *our4 = hl_alloc(heap, 100);
+	char *ourPointer = hl_alloc(heap, 400);
+	char *our2 = hl_alloc(heap, 400);
 	hl_release(heap, ourPointer);
-	hl_alloc(heap, 100);
-	hl_alloc(heap,100);
-	hl_release(heap, our2);
-	hl_alloc(heap, 89);
-	//hl_release(heap, our2);
-	hl_alloc(heap, 10);
-
+	if(hl_alloc(heap, 400)==NULL){
+		return FAILURE;
+	}
     return SUCCESS;
 }
 
@@ -313,8 +312,35 @@ int test09() {
  *
  */
 int test10() {
-
-    return FAILURE;
+	
+	char heap [1024];
+	hl_init(heap, 1024);
+	
+	char *ourPointer = hl_alloc(heap, 200);
+	
+	char *our2 = hl_alloc(heap, 200);
+	//writing to place we allocated
+	for (int i = 0; i < 200; i++){
+		our2[i] = 'a';
+	}
+	char *our3= hl_alloc(heap, 200);
+	#ifdef PRINT_DEBUG
+		printf("before resize \n");
+		printf("ourPointer %p\n", ourPointer);
+		printf("our2 %p\n", our2);
+		printf("our3 %p\n", our3);
+	#endif
+	char *our4 = hl_resize(heap, our2, 300);
+	#ifdef PRINT_DEBUG
+		printf("pointer from resize, our4 = %p\n", our4);
+	#endif
+	for (int i = 0; i < 200; i++){
+		if( our4[i] != 'a'){
+			return FAILURE;
+		}
+	}
+	
+    return SUCCESS;
 }
 
 /* Find something that you think heaplame does wrong. Make a test
