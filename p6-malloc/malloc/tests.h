@@ -252,9 +252,9 @@ int test06() {
  */
 int test07() {
 	char heap [2048];
-	hl_init(heap, HEAP_SIZE);
+	hl_init(heap, 2048);
 	for(int i=0; i<500;i++){
-		char *ourPointer = hl_alloc(heap, 2048-(3*i));
+		char *ourPointer = hl_alloc(heap, 2048-(100+(3*i)));
 		if(ourPointer == NULL){
 			return FAILURE;
 		}
@@ -346,16 +346,41 @@ int test10() {
 /* Find something that you think heaplame does wrong. Make a test
  * for that thing!
  *
- * FUNCTIONS BEING TESTED:
- * SPECIFICATION BEING TESTED:
+ * FUNCTIONS BEING TESTED: alloc, free, and resize
+ * SPECIFICATION BEING TESTED: structural integrity
  *
  *
  * MANIFESTATION OF ERROR:
  *
  */
 int test11() {
-
-    return FAILURE;
+	
+	char heap [2048];
+	hl_init(heap, 2048);
+	
+	for (int i = 0; i < 100; i++){
+		#ifdef PRINT_DEBUG
+			printf("i= %d\n", i);
+		#endif
+		char *ourPointer = hl_alloc(heap, 8 + i*3);
+		if (ourPointer == NULL){
+			return FAILURE;
+		}
+		char *our2 = hl_alloc(heap, 1000 - i*3);
+		if (our2 == NULL){
+			return FAILURE;
+		}
+		char *our3 = hl_resize(heap, ourPointer, (8 + i*3) + i);
+		if (our3 == NULL){
+			return FAILURE;
+		}
+		hl_release(heap, our2);
+		hl_release(heap, our3);
+	}
+	
+	
+		
+    return SUCCESS;
 }
 
 /* Find something that you think heaplame does wrong. Make a test
