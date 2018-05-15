@@ -548,8 +548,6 @@ int test17() {
 
   char heap[HEAP_SIZE];
 
-  int x = 0;
-
   hl_init(heap, HEAP_SIZE);
 
   char* ptr_array[2000];

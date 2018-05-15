@@ -3,7 +3,7 @@
 #define ADD_BYTES(base_addr, num_bytes) (((char *)(base_addr))+(num_bytes))
 #define SUB_BYTES(base_addr, num_bytes) (((char *)(base_addr))-(num_bytes))
 
-#define PRINT_DEBUG
+//#define PRINT_DEBUG
 
 //struct for heap header 
 typedef struct _heapMeta{
@@ -90,7 +90,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		//blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
 	//}
 	blockHead = bestHead;
-	if(blockHead > (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
+	if((blockHead > (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))||(blockHead->size%2==1)){
 		return NULL;
 	}
 	// storing old blockhead pointer and size to temps
@@ -148,7 +148,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	blockFoot = (blockMeta *) (ADD_BYTES(blockHead, blockHead->size  -((blockHead->size)%2 - 4)));
 	unsigned int maxContig =0;
 	//maybe it is not good to compare block head but we should do something with foot instead before was just ADD_BYTES(blockHead, 8)
-	while(blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
+	while((blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))&&(blockHead->size != 0)){
 		if(((blockHead->size -8) > maxContig) && ((blockHead->size)%2==0)){
 			maxContig = (blockHead->size) - 8;
 			#ifdef PRINT_DEBUG
@@ -243,7 +243,7 @@ void hl_release_no_lock(void *heap, void *block) {
 	blockFoot = (blockMeta *) (ADD_BYTES(blockHead, blockHead->size  -((blockHead->size)%2 - 4)));
 	unsigned int maxContig =0;
 	//maybe it is not good to compare block head but we should do something with foot instead before was just ADD_BYTES(blockHead, 8)
-	while(blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
+	while((blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))&&(blockHead->size != 0)){
 		if(((blockHead->size -8) > maxContig) && ((blockHead->size)%2==0)){
 			maxContig = (blockHead->size) - 8;
 			#ifdef PRINT_DEBUG
@@ -376,7 +376,9 @@ void *hl_resize(void *heap, void *block, unsigned int new_size) {
 	// if there is change the block size and we are set
 	// if there is not space need to find new space big enough in heap, copy over the old values and free old block
 	if(block == 0){
-		return hl_alloc_no_lock(heap, new_size);
+		void *blockZero = hl_alloc_no_lock(heap, new_size);
+		spin_unlock(malloc_lock);
+		return blockZero;
 	}
 	heapMeta *head;
 	//checking for heap alignment at beginning of the heap
