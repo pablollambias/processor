@@ -579,36 +579,209 @@ int k = 0;
 
 /* FUNCTIONS BEING TESTED: alloc, free, resize
  * SPECIFICATION BEING TESTED:alloc, free, & resize integrity test
+ * The returned address should be aligned at multiples of 8 bytes
  * MANIFESTATION OF ERROR:
  *
  */
 int test18() {
-    
-    return FAILURE;
+    int n_tries    = 10000;
+    int block_size = 16;
+
+    // 1024 bytes of padding
+    // --------------------
+    // 1024 bytes of "heap"
+    // --------------------  <-- heap_start
+    // 1024 bytes of "padding"
+    char memarea[HEAP_SIZE*3];
+
+    char *heap_start = &memarea[1024]; // heap will start 1024 bytes in
+    char *pointers[NPOINTERS];
+
+    // zero out the pointer array
+    memset(pointers, 0, NPOINTERS*sizeof(char *));
+    hl_init(heap_start, HEAP_SIZE);
+    srandom(0);
+    for (int i = 0; i < n_tries; i++) {
+        int index = random() % NPOINTERS;
+        block_size = random() % 100;
+        if (pointers[index] == 0) {
+            pointers[index] = hl_alloc(heap_start,  block_size);
+            if ((unsigned int)(pointers[index]) % 8 != 0)
+                return FAILURE;
+        }
+        else{
+            hl_release(heap_start, pointers[index]);
+            pointers[index] = 0;
+        }
+    }
+    return SUCCESS;
 }
 
 /* FUNCTIONS BEING TESTED: alloc, free
  * SPECIFICATION BEING TESTED:alloc & free data integrity test,
+* Data Integrity of Allocate. Once data is allocated, it should not be accidentally overridden
  * MANIFESTATION OF ERROR:
+ * If we randomize block size, and store different chars in each allocation, we can maintain 
+ * a list of pointers, a list of sizes, and a list of chars that indicate what each allocation
+ * contains and how big it is. When we come across that pointer again in the forloop, 
+ * we check to make sure that the data is the same as when it was allocated
  *
  */
 int test19() {
+    int n_tries    = 10000;
+    // 1024 bytes of padding
+    // --------------------
+    // 1024 bytes of "heap"
+    // --------------------  <-- heap_start
+    // 1024 bytes of "padding"
+    char memarea[HEAP_SIZE*3];
+
+    char *heap_start = &memarea[1024]; // heap will start 1024 bytes in
+    char *pointers[NPOINTERS];
+    // Size array - to hold the size of each block
+    int stored_size[NPOINTERS];
+    // Holds the value that is in the particular block
+    char stored_char[NPOINTERS];
+
+
+    // zero out the pointer array
+    memset(pointers, 0, NPOINTERS*sizeof(char *));
+
+    hl_init(heap_start, HEAP_SIZE);
+    srandom(0);
+    for (int i = 0; i < n_tries; i++) {
+        int index = random() % NPOINTERS;
+        if (pointers[index] == 0) {
+
+            int random_block_size = random()% 100;
+            pointers[index] = hl_alloc(heap_start, random_block_size);
+            int k;
+            if (pointers[index] != NULL){
+                // randomize character
+                char randomletter = 'a' + (random() % 26);
+                stored_size[index] = random_block_size;
+                stored_char[index] = randomletter;
+                for (k =0; k < random_block_size; k++){
+                    pointers[index][k] = randomletter;
+
+                }
+            }
+            else{
+                stored_size[index] = 0;
+                stored_char[index] = 0;
+            }
+        }
     
-    return FAILURE;
+        else{
+            int j;
+            for(j =0; j < stored_size[index]; j++){
+                if (pointers[index][j] != stored_char[index])
+                    return FAILURE;
+            }
+            hl_release(heap_start, pointers[index]);
+            pointers[index] = 0;
+            stored_size[index] = 0;
+        }
+    }
+    return SUCCESS;
 }
+
 
 int test20() {
     
-    return FAILURE;
+    return SUCCESS;
 }
 /* FUNCTIONS BEING TESTED: alloc, free, resize
  * SPECIFICATION BEING TESTED:alloc, free, resize - a lot of times
+* Data Integrity of Resize. Ensures that resize preserves the contents of the original allocation
  * MANIFESTATION OF ERROR:
+ * If we randomize block size and store different chars in each allocation, 
+ * when we reallocate the pointer to a random smaller or larger size, 
+ * the specific char's inside the original allocation must be maintained
  *
  */
 int test21() {
+    int n_tries = 10000;
+
+    // 1024 bytes of padding
+    // --------------------
+    // 1024 bytes of "heap"
+    // --------------------  <-- heap_start
+    // 1024 bytes of "padding"
+    char memarea[HEAP_SIZE*3];
+
+    char *heap_start = &memarea[1024]; // heap will start 1024 bytes in
+    char *pointers[NPOINTERS]; //creates an array of 100 (NPointers) pointers
+    //this pointer array is not in the heap
+
+    // zero out the pointer array
+    memset(pointers, 0, NPOINTERS*sizeof(char *));
+
+    hl_init(heap_start, HEAP_SIZE);
+    //sets the seed for the random function
+    srandom(0);
+    //for 100000 iterations - loop.
+    for (int i = 0; i < n_tries; i++) {
+        //randomly sets the index - index of the pointer array - that is we are selecting a random pointer
+        //by modding the random number by NPOINTERS we end up with a value that is in fact bewteen 0 and NPOINTERS
+        int index = random() % NPOINTERS;
+        //if the element at that index == 0 - that is it doesn't point anywhere
+        if (pointers[index] == 0) {
+
+            //other random intitializations
+            int random_block = random()% 100 +8;   //generates a block size 8 to 107
+            int block_scalar = random()% 30 -8;      //generates a block_scalar -8 to 24
+
+
+            //Since we have confirmed that the index is empty, we now fill it up with a pointer to a newly allocated block
+            pointers[index] = hl_alloc(heap_start, random_block);
+            //initilize k - for the loop
+            int k;
+            char randomletter = 'a' + (random() % 26);
+
+            //if the allocation was valid/ alloc didn't return null we can now populatate that block with randomletter
+            if (pointers[index] != NULL){
+                for (k =0; k < random_block; k++){
+                    pointers[index][k] = randomletter;
+                }
+            
+
+                unsigned int newBlock = random_block + block_scalar;                      // fuck up
+                pointers[index] = hl_resize(heap_start, pointers[index], newBlock);
+                
+                //if the pointer to the new block is not NUll --> compare values inside
+                if((newBlock > random_block) && (pointers[index]!= NULL)){
+                    //checks to make sure the old contents are in the new block
+                    for (k =0; k < random_block; k++){
+                        if(pointers[index][k] != randomletter){
+                            return FAILURE;
+                        }
+                    }
+                    //populates the new part of the block
+                    for(k = random_block; k < newBlock; k++){
+                        pointers[index][k] = randomletter;
+                    }
+                }
+                else if (pointers[index] != NULL){
+                //check to make sure the block retains all the old values of the old block size 
+                    for (k =0; k < newBlock; k++){
+                        if(pointers[index][k] != randomletter)
+                            return FAILURE;
+                    }
+
+                }
+            }
+        }
     
-    return FAILURE;
+        else{
+            //if the randomly indexed spot already has a pointer and our random var says we should release, we now free it
+            hl_release(heap_start, pointers[index]);
+            //to denote that we have freed it, pointer[index] = 0 
+            pointers[index] = 0;
+            
+        }
+    }
+    return SUCCESS;
 }
 
 /* FUNCTIONS BEING TESTED: lock and unlock

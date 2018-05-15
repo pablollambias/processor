@@ -36,30 +36,36 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		head = (heapMeta *)(ADD_BYTES(heap, 8-(heapInt%8)));
 	}
 	#ifdef PRINT_DEBUG
-		printf("head= %p\n", head);
+		//printf("head= %p\n", head);
 	#endif
 	blockMeta *blockHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
 	blockMeta *blockFoot = (blockMeta *)(ADD_BYTES(blockHead, blockHead->size -4));
 	
 	//checks if the block asked for is greater than the largest contig mem available in the heap.
 	#ifdef PRINT_DEBUG
-		printf("contigFree %u\n", head->contigFree);
-		printf("block_size %u\n", block_size);
+		//printf("contigFree %u\n", head->contigFree);
+		//printf("block_size %u\n", block_size);
 	#endif
 	if(block_size%8==0){
 		if((head->contigFree ) < block_size){
+			#ifdef PRINT_DEBUG
+				//printf("returning alloc with null \n");
+			#endif
 			return NULL;
 		}
 	}
 	else{
 		if((head->contigFree ) < block_size+8-(block_size%8)){
+			#ifdef PRINT_DEBUG
+				//printf("returning alloc with null \n");
+			#endif
 			return NULL;
 		}		
 	}
 	//optimazation goal is to put requested block in free block with least left over bytes.
 	
 	#ifdef PRINT_DEBUG
-		printf("befor block search \n");
+		//printf("befor block search \n");
 	#endif	
 	
 	unsigned int minLeftOver = head->contigFree;
@@ -67,13 +73,25 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 
 	
 	// added the -8 at the end to take care of cases where there is a stranded 1-7 bytes at the end which are not enough for block meta
-	while(blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8))){
+	while((blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))  && (blockHead->size !=0)){
+			#ifdef PRINT_DEBUG
+				//printf("In while \n");
+				//printf("bestHead size %u\n", bestHead->size);
+			#endif
 		if(((blockHead->size)%2 == 0) &&(((blockHead->size)-8) >= block_size )){
+				#ifdef PRINT_DEBUG
+						//printf("IN while if \n");
+						//printf("bestHead size %u\n", bestHead->size);
+				#endif
 			//i moved the block_size mod eight one level out because the if statements comparing to the minLeftOver need to be different
 			if(block_size %8 ==0){
 				if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
 					bestHead = blockHead;
 					minLeftOver = blockHead->size - block_size - (2*(sizeof(blockMeta)));
+						#ifdef PRINT_DEBUG
+							//printf("bestHead in finder %p\n", bestHead);
+							//printf("bestHead in finder size %u\n", bestHead->size);
+						#endif
 				}
 			}
 			else{
@@ -90,7 +108,14 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		//blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
 	//}
 	blockHead = bestHead;
+	#ifdef PRINT_DEBUG
+		//printf("bestHead %p\n", bestHead);
+		//printf("bestHead size %u\n", bestHead->size);
+	#endif	
 	if((blockHead > (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))||(blockHead->size%2==1)){
+	#ifdef PRINT_DEBUG
+		//printf("returning alloc with null \n");
+	#endif
 		return NULL;
 	}
 	// storing old blockhead pointer and size to temps
@@ -106,13 +131,13 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	//make new block footer
 	blockFoot = (blockMeta *)((ADD_BYTES(blockHead, blockHead->size - ((blockHead->size)%2) -sizeof(blockMeta))));
 	#ifdef PRINT_DEBUG
-		printf("New Foot= %p\n", blockFoot);
+		//printf("New Foot= %p\n", blockFoot);
 	#endif
 	blockFoot->size = blockHead->size;
 	// only need to make new header and update footer for left over if the sizes dont match up perfectly 
-	if((blockMeta *)(ADD_BYTES(blockFoot,3*(sizeof(blockMeta)))) <= (blockMeta *)(ADD_BYTES(oldPointer, oldSize))){
+	if((blockMeta *)(ADD_BYTES(blockHead, blockHead->size - blockHead->size%2 + 2*(sizeof(blockMeta)))) <= (blockMeta *)(ADD_BYTES(oldPointer, oldSize))){
 		//make new header for leftover block 
-		blockHead = (blockMeta *)(ADD_BYTES(blockFoot, sizeof(blockMeta)));
+		blockHead = (blockMeta *)(ADD_BYTES(blockHead, blockHead->size - (blockHead->size)%2 ));
 		#ifdef PRINT_DEBUG
 			//printf("head for free block = %p\n", blockHead);
 		#endif
@@ -139,7 +164,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 		blockFoot->size = blockHead->size;
 	}
 	#ifdef PRINT_DEBUG
-		printf("first matching block pointer = %p\n", (void *)(ADD_BYTES(oldPointer,sizeof(blockMeta))));
+		//printf("first matching block pointer = %p\n", (void *)(ADD_BYTES(oldPointer,sizeof(blockMeta))));
 	#endif
 	void *newPointer = (void *)(ADD_BYTES(oldPointer,sizeof(blockMeta)));
 	
@@ -192,27 +217,27 @@ void hl_release_no_lock(void *heap, void *block) {
 		return;
 	}
 	#ifdef PRINT_DEBUG
-		printf("found head \n");
+		//printf("found head \n");
 	#endif
 	// find the block that we would like to free and change the inUse attribute to False;
 	blockMeta *blockFoot = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size - ((blockHead->size)%2) -4)));
 	#ifdef PRINT_DEBUG
-		printf("changing to not in use\n");
-		printf("blockHead  = %p\n",blockHead);
-		printf("blockFoot = %p\n",blockFoot);  
-		printf("blockHead size = %d\n", blockHead->size); 
-		printf("blockFoot size = %d\n", blockFoot->size); 
+		//printf("changing to not in use\n");
+		//printf("blockHead  = %p\n",blockHead);
+		//printf("blockFoot = %p\n",blockFoot);  
+		//printf("blockHead size = %d\n", blockHead->size); 
+		//printf("blockFoot size = %d\n", blockFoot->size); 
 	#endif
 	
 	blockHead->size = blockHead->size - ((blockHead->size)%2);
-	blockFoot->size = blockFoot->size - ((blockFoot->size)%2);;
+	blockFoot->size = blockHead->size;
 	#ifdef PRINT_DEBUG
-		printf("checking if neighbors are free \n");
+		//printf("checking if neighbors are free \n");
 	#endif
 	//checks if block above is free
 	if((void *)(SUB_BYTES(blockHead,20)) >= (void *) (head)){
 		#ifdef PRINT_DEBUG
-			printf("checking if prev is free in if \n");
+			//printf("checking if prev is free in if \n");
 		#endif
 		blockMeta *prevFoot = (blockMeta *)(SUB_BYTES(blockHead,4));
 		blockMeta *prevHead = (blockMeta *)(SUB_BYTES(prevFoot, prevFoot->size -((prevFoot->size)%2)  -4));
@@ -223,21 +248,34 @@ void hl_release_no_lock(void *heap, void *block) {
 		}
 	}
 	//checks if block below is free
-	if((void *)(ADD_BYTES(blockFoot,12)) <= (void *)(ADD_BYTES(head,head->heapSize))){
+	if((void *)(ADD_BYTES(blockHead, blockHead->size +8)) <= (void *)(ADD_BYTES(head,head->heapSize))){
 		#ifdef PRINT_DEBUG
-			printf("checking if next is free in if \n");
+			//printf("checking if next is free in if \n");
 		#endif
-		blockMeta *nextHead = (blockMeta *)(ADD_BYTES(blockFoot,4));
-		blockMeta *nextFoot = (blockMeta *)(ADD_BYTES(nextHead, nextHead->size - ((nextHead->size)%2)-4));
+		blockMeta *nextHead = (blockMeta *)(ADD_BYTES(blockHead, blockHead->size));
+		blockMeta *nextFoot = (blockMeta *)(ADD_BYTES(nextHead, nextHead->size - ((nextHead->size)%2)-sizeof(blockMeta)));
 		if((nextHead->size)%2 ==0){
-			blockHead->size = blockHead->size +nextHead->size;
+			#ifdef PRINT_DEBUG
+				//printf("1 \n");
+				//printf("blockhead size = %u\n", blockHead->size);
+				//printf("nexthead size = %u\n", nextHead->size);
+			#endif
+			blockHead->size = blockHead->size + nextHead->size;
+			#ifdef PRINT_DEBUG
+				//printf("2 \n");
+				//printf("blockhead size = %u\n", blockHead->size);
+			#endif
 			nextFoot->size = blockHead->size;
+			#ifdef PRINT_DEBUG
+				//printf("3\n");
+			#endif
 			blockFoot = nextFoot;
+			
 		}		
 	}
 	//update contig free
 	#ifdef PRINT_DEBUG
-		printf("old contig free = %u\n", head->contigFree);
+		//printf("old contig free = %u\n", head->contigFree);
 	#endif
 	blockHead = (blockMeta *)(ADD_BYTES(head, sizeof(heapMeta)));
 	blockFoot = (blockMeta *) (ADD_BYTES(blockHead, blockHead->size  -((blockHead->size)%2 - 4)));
@@ -247,7 +285,7 @@ void hl_release_no_lock(void *heap, void *block) {
 		if(((blockHead->size -8) > maxContig) && ((blockHead->size)%2==0)){
 			maxContig = (blockHead->size) - 8;
 			#ifdef PRINT_DEBUG
-				printf("in if \n");
+				//printf("in if \n");
 			#endif
 		}
 		blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size)-((blockHead->size)%2)));
