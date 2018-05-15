@@ -1,0 +1,86 @@
+
+C:\Users\orenm\Desktop\cornell\Spring 18\CS 3410\P2CornellGit\pl438-om72>git log
+commit 8052c0f28b3e054d245ec7a90d3c3aa1df6b82c7 (HEAD -> master, origin/master, origin/HEAD)
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 15 14:57:32 2018 -0400
+
+    finally found our bug in resize
+
+commit 56959c57566188c6d92db5c49bae495a50221a23
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 15 12:52:54 2018 -0400
+
+    small changes
+
+commit 5347b83cf6b3264fcddf34cc0eab1fdb52218e78
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 15 02:47:18 2018 -0400
+
+    alias
+
+commit 572da500146fd67b694f665411bd9a709b1eb4de
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 15 02:45:08 2018 -0400
+
+    final changes
+
+commit 276b1d30dcac649f7fba9fb7bb5cbc6463c758d0
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Mon May 14 19:13:00 2018 -0400
+
+    changes to coel
+
+commit 06cf3c82faf92bb30a0d3e13751f79aee5ef750a
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun May 13 17:49:37 2018 -0400
+
+    lots of bugs fixed
+
+commit 71a5de12b7cc778b85d534587173499a910ceabb
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sun May 13 12:41:30 2018 -0400
+
+    changes to init
+
+commit a9f25656dd0b1bc2e85d491e15fa15c714d19413
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat May 12 22:47:49 2018 -0400
+
+    realloc changes
+
+commit 04ebbf4b0c93bea1f23894ecdc6b8a14ba2db7e1
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat May 12 17:33:05 2018 -0400
+
+    took out prints
+
+commit d5ee0eaaac98a72913082193f5ffcf4139c2429a
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat May 12 17:28:34 2018 -0400
+
+    changes to heap pointer
+
+commit 026b99517b587b65797dd92aac7b1079d556b1da
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat May 12 15:05:56 2018 -0400
+
+    minor changes with alingment
+
+commit 88be88a8c62b4886077004a60fef34b261f8b5e5
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Sat May 12 14:02:41 2018 -0400
+
+    passed all their test cases, need to write more ourselves
+
+commit f2eb297c84ac7b5cd2a1c5465ccf10e229cd0741
+Merge: 3627e23 f0bcde5
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 8 12:14:39 2018 -0400
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/cs3410-2018sp-student/pl438-om72
+
+commit 3627e23a433a2991fbf22c0f026edff1922f7559
+Author: Oren Michaely <orenmichaely@gmail.com>
+Date:   Tue May 8 12:14:17 2018 -0400
+
+    init
