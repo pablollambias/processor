@@ -691,7 +691,7 @@ int test20() {
     
     return SUCCESS;
 }
-/* FUNCTIONS BEING TESTED: alloc, free, resize
+ FUNCTIONS BEING TESTED: alloc, free, resize
  * SPECIFICATION BEING TESTED:alloc, free, resize - a lot of times
 * Data Integrity of Resize. Ensures that resize preserves the contents of the original allocation
  * MANIFESTATION OF ERROR:
@@ -699,7 +699,7 @@ int test20() {
  * when we reallocate the pointer to a random smaller or larger size, 
  * the specific char's inside the original allocation must be maintained
  *
- */
+ 
 int test21() {
     int n_tries = 10000;
 

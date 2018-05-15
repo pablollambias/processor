@@ -65,7 +65,7 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	//optimazation goal is to put requested block in free block with least left over bytes.
 	
 	#ifdef PRINT_DEBUG
-		//printf("befor block search \n");
+		printf("befor block search \n");
 	#endif	
 	
 	unsigned int minLeftOver = head->contigFree;
@@ -73,24 +73,24 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 
 	
 	// added the -8 at the end to take care of cases where there is a stranded 1-7 bytes at the end which are not enough for block meta
-	while((blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))  && (blockHead->size !=0)){
+	while((blockHead <= (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))  && (blockHead->size !=0) && (blockHead->size < head->heapSize - 8)){
 			#ifdef PRINT_DEBUG
-				//printf("In while \n");
-				//printf("bestHead size %u\n", bestHead->size);
+				printf("In while \n");
+				printf("bestHead size %u\n", bestHead->size);
 			#endif
 		if(((blockHead->size)%2 == 0) &&(((blockHead->size)-8) >= block_size )){
 				#ifdef PRINT_DEBUG
-						//printf("IN while if \n");
-						//printf("bestHead size %u\n", bestHead->size);
+						printf("IN while if \n");
+						printf("bestHead size %u\n", bestHead->size);
 				#endif
-			//i moved the block_size mod eight one level out because the if statements comparing to the minLeftOver need to be different
+			//we moved the block_size mod eight one level out because the if statements comparing to the minLeftOver need to be different
 			if(block_size %8 ==0){
 				if((blockHead->size - block_size - (2*(sizeof(blockMeta))))<minLeftOver){
 					bestHead = blockHead;
 					minLeftOver = blockHead->size - block_size - (2*(sizeof(blockMeta)));
 						#ifdef PRINT_DEBUG
-							//printf("bestHead in finder %p\n", bestHead);
-							//printf("bestHead in finder size %u\n", bestHead->size);
+							printf("bestHead in finder %p\n", bestHead);
+							printf("bestHead in finder size %u\n", bestHead->size);
 						#endif
 				}
 			}
@@ -102,21 +102,32 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 			}
 		}
 		blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
-	} 
-	//first free implementation
-	//while(((((blockHead->size)%2) != 0) || (((blockHead->size)-8) < block_size)) && (ADD_BYTES(blockHead, (block_size + block_size%8)) < ADD_BYTES(head,(head->heapSize)))){
-		//blockHead = (blockMeta *)(ADD_BYTES(blockHead, (blockHead->size -(blockHead->size %2)))); 
-	//}
+			#ifdef PRINT_DEBUG
+				printf("block head updated iterator %p\n", blockHead);
+				printf("blockHead size %u\n", blockHead->size);
+			#endif
+	}
+	 
 	blockHead = bestHead;
 	#ifdef PRINT_DEBUG
-		//printf("bestHead %p\n", bestHead);
-		//printf("bestHead size %u\n", bestHead->size);
+		printf("bestHead %p\n", bestHead);
+		printf("bestHead size %u\n", bestHead->size);
 	#endif	
 	if((blockHead > (blockMeta *)(ADD_BYTES(head, head->heapSize -8)))||(blockHead->size%2==1)){
 	#ifdef PRINT_DEBUG
-		//printf("returning alloc with null \n");
+		printf("returning alloc with null \n");
 	#endif
 		return NULL;
+	}
+	if(block_size%8 !=0){
+		if(blockHead->size < (block_size- (block_size%8) + 8 +(sizeof(blockMeta))*2)){
+			return NULL;
+		}
+	}
+	else{
+		if(blockHead->size < (block_size +(sizeof(blockMeta))*2)){
+			return NULL;
+		}
 	}
 	// storing old blockhead pointer and size to temps
 	blockMeta *oldPointer= blockHead;
@@ -128,6 +139,10 @@ void *hl_alloc_no_lock(void *heap, unsigned int block_size) {
 	else{
 		blockHead->size = block_size +(sizeof(blockMeta))*2 +1;
 	}
+	
+	#ifdef PRINT_DEBUG
+		printf("blockHead size %u\n", blockHead->size);
+	#endif
 	//make new block footer
 	blockFoot = (blockMeta *)((ADD_BYTES(blockHead, blockHead->size - ((blockHead->size)%2) -sizeof(blockMeta))));
 	#ifdef PRINT_DEBUG
@@ -467,8 +482,15 @@ void *hl_resize(void *heap, void *block, unsigned int new_size) {
 			//printf("pointer from call to alloc %p\n", newDataStart);
 		#endif
 		char *newDataStartChar= (char *)(newDataStart);
-		for(int j=0; j< oldSize;j++){
-			newDataStartChar[j] = tempArr[j];
+		if (new_size >= oldSize){
+			for(int j=0; j< oldSize;j++){
+				newDataStartChar[j] = tempArr[j];
+			}
+		}
+		else{
+			for(int j=0; j< new_size;j++){
+				newDataStartChar[j] = tempArr[j];
+			}
 		}
 	}
 	else{
